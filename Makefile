@@ -15,7 +15,7 @@ ifeq ($(DRAFT),1)
 SIZES = 10000 31620 100000 316220 1000000 3162280
 CFLAGS = -O4 -pg
 else
-SIZES = 10000 31620 100000 316220 1000000 3162280 10000000 31622800 100000000
+SIZES = 10000000
 CFLAGS = -O4 -DNDEBUG
 endif
 
@@ -27,7 +27,7 @@ XPROD3 = $(call XPROD,$1,$2,$(call XPROD,$3,$4,$5))
 CXX_CODE = $(addprefix src/,main.cpp common.h timer.h)
 
 # Algorithms
-ALGOS = nth_element rnd3pivot ninther median_of_ninthers bfprt_baseline
+ALGOS = std_sort my_sort
 
 # Data sets (synthetic)
 SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted
@@ -37,7 +37,7 @@ $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call MK_OUTFILES,$d)))
 
 # Data sets (Google Books)
 L = a b c d e f g h i j k l m n o p q r s t u v w x y z
-GBOOKS_LANGS = eng fre ger ita rus spa
+#GBOOKS_LANGS = eng fre ger ita rus spa
 GBOOKS_CORPORA = $(foreach l,$(GBOOKS_LANGS),googlebooks-$l-all-1gram-20120701)
 
 # All data sets ever
@@ -113,6 +113,8 @@ $T/$1: src/$1.cpp $(CXX_CODE)
 endef
 
 $(foreach a,$(ALGOS),$(eval $(call MAKE_MEASUREMENT,$a)))
+
+$T/my_sort: src/median_of_ninthers.h
 
 ################################################################################
 # Assemble measurement results

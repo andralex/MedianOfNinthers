@@ -12,7 +12,7 @@
 #include "timer.h"
 using namespace std;
 
-extern void (*computeSelection)(double*, double*, double*);
+extern void (*compute)(double*, double*);
 
 const size_t epochs = 21;
 
@@ -42,7 +42,6 @@ int main(int argc, char** argv)
     std::mt19937 g(1);
 
     double durations[epochs];
-    double median = 0;
 
     for (size_t i = 0; ; ++i)
     {
@@ -50,32 +49,20 @@ int main(int argc, char** argv)
         auto b = &v[0];
         //////////////////// TIMING {
         Timer t;
-        (*computeSelection)(b, b + index, b + dataLen);
+        (*compute)(b, b + dataLen);
         durations[i] = t.elapsed();
         //////////////////// } TIMING
-        if (median == 0)
-        {
-            median = v[index];
-        }
-        else
-        {
-            if (median != v[index]) return 7;
-        }
         if (++i == epochs)
         {
+            // Verify
+            if (!is_sorted(v.begin(), v.end())) return 8;
             fprintf(stderr, "%s%lu: %g\n", reshuffle ? "shuffled " : "",
-                dataLen, median);
+                dataLen, v[v.size() / 2]);
             break;
         }
         if (reshuffle)
             shuffle(data, data + dataLen, g);
     }
-    // Verify
-#ifdef NDEBUG
-    vector<double> v {data, data + dataLen};
-    sort(v.begin(), v.end());
-    if (median != v[index]) return 8;
-#endif
 
     sort(durations, durations + epochs);
     double sum = 0;

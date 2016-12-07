@@ -296,6 +296,17 @@ void ninther(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
     ]);
 }
 
+template <class T>
+size_t nintherIndex(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
+    size_t _6, size_t _7, size_t _8, size_t _9)
+{
+    return median3Index(r,
+        median3Index(r, _1, _2, _3),
+        median3Index(r, _4, _5, _6),
+        median3Index(r, _7, _8, _9)
+    );
+}
+
 /**
 Input assumptions:
 
