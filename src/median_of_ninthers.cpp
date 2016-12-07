@@ -111,8 +111,9 @@ static size_t medianOfNinthers(T*const r, const size_t length)
     assert(lo >= frac * 4);
     assert(length - hi >= frac * 4);
     assert(lo / 2 >= pivot);
-    const auto dst = lo / 2 - pivot;
-    for (size_t i = lo, a = lo - dst, b = lo + dst; i < hi; ++i, a += 3, b += 3)
+    const auto gap = (length - 9 * frac) / 4;
+    auto a = lo - 4 * frac - gap, b = hi + gap;
+    for (size_t i = lo; i < hi; ++i, a += 3, b += 3)
     {
         ninther(r, a, i - frac, b, a + 1, i, b + 1, a + 2, i + frac, b + 2);
     }
