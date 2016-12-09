@@ -14,7 +14,7 @@ using namespace std;
 
 extern void (*compute)(double*, double*);
 
-const size_t epochs = 21;
+const size_t epochs = 101;
 
 int main(int argc, char** argv)
 {

@@ -12,10 +12,10 @@ $(shell mkdir -p $R)
 
 # Data sizes present in the paper
 ifeq ($(DRAFT),1)
-SIZES = 10000 31620 100000 316220 1000000 3162280
+SIZES = 5000000
 CFLAGS = -O4 -pg
 else
-SIZES = 10000000
+SIZES = 5000000
 CFLAGS = -O4 -DNDEBUG
 endif
 
@@ -30,7 +30,8 @@ CXX_CODE = $(addprefix src/,main.cpp common.h timer.h)
 ALGOS = std_sort my_sort
 
 # Data sets (synthetic)
-SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted
+SYNTHETIC_DATASETS = organpipe random random01 rotated sorted
+#SYNTHETIC_DATASETS = random
 # Benchmark files we're interested in
 MK_OUTFILES = MEASUREMENTS_$1 = $(foreach n,$(SIZES),$(foreach a,$(ALGOS),$D/$a_$1_$n.out))
 $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call MK_OUTFILES,$d)))
@@ -49,6 +50,7 @@ MEASUREMENT_OUTPUTS = $(foreach x,$(SYNTHETIC_DATASETS),$(MEASUREMENTS_$x)) \
 
 # Results files will be included in the paper
 RESULTS = $(addprefix $R/,$(SYNTHETIC_DATASETS) gbooks_freq)
+RESULTS = $(addprefix $R/,$(SYNTHETIC_DATASETS))
 
 ###############################################################################
 

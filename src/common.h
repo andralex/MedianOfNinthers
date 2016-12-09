@@ -280,22 +280,6 @@ size_t median3Index(const T* r, size_t a, size_t b, size_t c)
     return b;
 }
 
-/**
-Tukey's Ninther: compute the median of r[_1], r[_2], r[_3], then the median of
-r[_4], r[_5], r[_6], then the median of r[_7], r[_8], r[_9], and then swap the
-median of those three medians into r[_5].
-*/
-template <class T>
-void ninther(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
-    size_t _6, size_t _7, size_t _8, size_t _9)
-{
-    std::swap(r[_5], r[median3Index(r,
-        median3Index(r, _1, _2, _3),
-        median3Index(r, _4, _5, _6),
-        median3Index(r, _7, _8, _9))
-    ]);
-}
-
 template <class T>
 size_t nintherIndex(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
     size_t _6, size_t _7, size_t _8, size_t _9)
@@ -305,6 +289,89 @@ size_t nintherIndex(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
         median3Index(r, _4, _5, _6),
         median3Index(r, _7, _8, _9)
     );
+}
+
+/**
+Tukey's Ninther: compute the median of r[_1], r[_2], r[_3], then the median of
+r[_4], r[_5], r[_6], then the median of r[_7], r[_8], r[_9], and then swap the
+median of those three medians into r[_5].
+*/
+template <class T>
+void ninther(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
+    size_t _6, size_t _7, size_t _8, size_t _9)
+{
+    std::swap(r[_5], r[nintherIndex(r, _1, _2, _3, _4, _5, _6, _7, _8, _9)]);
+}
+
+template <class T>
+T* nintherPartition(T* r, T* end)
+{
+    const size_t n = end - r;
+    size_t p;
+    if (n >= 10)
+    {
+        auto k = n / 10;
+        p = 5 * k;
+        ninther(r, k, 2 * k, 3 * k, 4 * k, p, 6 * k, 7 * k, 8 * k, 9 * k);
+    }
+    else
+    {
+        p = n / 2;
+    }
+    return pivotPartition(r, p, n);
+}
+
+// Credit: DRBlaise on stackoverflow.com, see
+// http://stackoverflow.com/questions/480960/code-to-calculate-median-of-five-in-c-sharp
+template <class T>
+size_t median5Index(T* r, size_t a, size_t b, size_t c, size_t d, size_t e)
+{
+    return
+        r[b]<r[a]?r[d]<r[c]?r[b]<r[d]?r[a]<r[e]?r[a]<r[d]?r[e]<r[d]?e:d
+                                                                        :r[c]<r[a]?c:a
+                                                           :r[e]<r[d]?r[a]<r[d]?a:d
+                                                                        :r[c]<r[e]?c:e
+                                              :r[c]<r[e]?r[b]<r[c]?r[a]<r[c]?a:c
+                                                                        :r[e]<r[b]?e:b
+                                                           :r[b]<r[e]?r[a]<r[e]?a:e
+                                                                        :r[c]<r[b]?c:b
+                                 :r[b]<r[c]?r[a]<r[e]?r[a]<r[c]?r[e]<r[c]?e:c
+                                                                        :r[d]<r[a]?d:a
+                                                           :r[e]<r[c]?r[a]<r[c]?a:c
+                                                                        :r[d]<r[e]?d:e
+                                              :r[d]<r[e]?r[b]<r[d]?r[a]<r[d]?a:d
+                                                                        :r[e]<r[b]?e:b
+                                                           :r[b]<r[e]?r[a]<r[e]?a:e
+                                                                        :r[d]<r[b]?d:b
+                    :r[d]<r[c]?r[a]<r[d]?r[b]<r[e]?r[b]<r[d]?r[e]<r[d]?e:d
+                                                                        :r[c]<r[b]?c:b
+                                                           :r[e]<r[d]?r[b]<r[d]?b:d
+                                                                        :r[c]<r[e]?c:e
+                                              :r[c]<r[e]?r[a]<r[c]?r[b]<r[c]?b:c
+                                                                        :r[e]<r[a]?e:a
+                                                           :r[a]<r[e]?r[b]<r[e]?b:e
+                                                                        :r[c]<r[a]?c:a
+                                 :r[a]<r[c]?r[b]<r[e]?r[b]<r[c]?r[e]<r[c]?e:c
+                                                                        :r[d]<r[b]?d:b
+                                                           :r[e]<r[c]?r[b]<r[c]?b:c
+                                                                        :r[d]<r[e]?d:e
+                                              :r[d]<r[e]?r[a]<r[d]?r[b]<r[d]?b:d
+                                                                        :r[e]<r[a]?e:a
+                                                           :r[a]<r[e]?r[b]<r[e]?b:e
+                                                                        :r[d]<r[a]?d:a;
+}
+
+template <class T>
+void fifteenther(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
+    size_t _6, size_t _7, size_t _8, size_t _9, size_t _10, size_t _11,
+    size_t _12, size_t _13, size_t _14, size_t _15)
+{
+    auto a = median3Index(r, _1, _2, _3);
+    auto b = median3Index(r, _4, _5, _6);
+    auto c = median3Index(r, _7, _8, _9);
+    auto d = median3Index(r, _10, _11, _12);
+    auto e = median3Index(r, _13, _14, _15);
+    std::swap(r[_8], r[median5Index(r, a, b, c, d, e)]);
 }
 
 /**

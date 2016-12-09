@@ -4,7 +4,7 @@
  *          https://boost.org/LICENSE_1_0.txt)
  */
 
-#include "common.h"
+#include <algorithm>
 
-void (*computeSelection)(double*, double*, double*)
-    = &quickselect<double, &nintherPartition<double>>;
+void (*compute)(double*, double*)
+    = &std::sort<double*>;
