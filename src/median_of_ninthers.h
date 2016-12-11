@@ -88,11 +88,14 @@ size_t medianOfMinima3(T*const r, const size_t n, const size_t length)
 Median of minima for \Gamma = 8
 */
 template <class T>
-size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
+size_t medianOfMinima8(T*const r, const size_t n, const size_t length,
+    const size_t totalLength = 0)
 {
     assert(length >= 8);
+    assert(totalLength == 0 || totalLength >= length);
     const auto _8 = length / 8;
     assert(n < _8);
+
     for (size_t i = 0, j = _8; i < _8; ++i, j += 7)
     {
         auto a = r[i] <= r[j] ? i : j;
@@ -104,8 +107,9 @@ size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
         auto g = r[f] < r[e] ? f : e;
         std::swap(r[i], r[g]);
     }
+
     adaptiveQuickselect(r, n, _8);
-    return expandPartition(r, 0, n, _8, length);
+    return expandPartition(r, 0, n, _8, totalLength ? totalLength : length);
 }
 
 /**
