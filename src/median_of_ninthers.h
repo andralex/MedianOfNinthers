@@ -16,7 +16,8 @@ void adaptiveQuickselect(T* beg, size_t n, size_t length);
 Median of minima for \Gamma = 2
 */
 template <class T>
-size_t medianOfMinima2(T*const r, const size_t n, const size_t length)
+size_t medianOfMinima2(T*const r, const size_t n, const size_t length,
+    const size_t totalLength = 0)
 {
     assert(length >= 2);
     const auto _2 = length / 2;
@@ -26,7 +27,7 @@ size_t medianOfMinima2(T*const r, const size_t n, const size_t length)
         if (r[i + _2] < r[i]) std::swap(r[i], r[i + _2]);
     }
     adaptiveQuickselect(r, n, _2);
-    return expandPartition(r, 0, n, _2, length);
+    return expandPartition(r, 0, n, _2, totalLength ? totalLength : length);
 }
 
 /**
@@ -50,7 +51,8 @@ size_t medianOfMaxima2(T*const r, const size_t n, const size_t length)
 Median of minima for \Gamma = 4
 */
 template <class T>
-size_t medianOfMinima4(T*const r, const size_t n, const size_t length)
+size_t medianOfMinima4(T*const r, const size_t n, const size_t length,
+    const size_t totalLength = 0)
 {
     assert(length >= 4);
     const auto _4 = length / 4;
@@ -62,7 +64,7 @@ size_t medianOfMinima4(T*const r, const size_t n, const size_t length)
         if (r[a] < r[i]) std::swap(r[i], r[a]);
     }
     adaptiveQuickselect(r, n, _4);
-    return expandPartition(r, 0, n, _4, length);
+    return expandPartition(r, 0, n, _4, totalLength ? totalLength : length);
 }
 
 /**
@@ -134,6 +136,32 @@ size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
     }
     adaptiveQuickselect(r + lo, n - lo, _8);
     return expandPartition(r, lo, n, length, length);
+}
+
+template <class T>
+size_t medianOfMinima9(T*const r, const size_t n, const size_t length,
+    const size_t totalLength = 0)
+{
+    assert(length >= 8);
+    assert(totalLength == 0 || totalLength >= length);
+    const auto _9 = length / 9;
+    assert(n < _9);
+
+    for (size_t i = 0, j = _9; i < _9; ++i, j += 8)
+    {
+        auto a = r[i] <= r[j] ? i : j;
+        auto b = r[j + 1] <= r[j + 2] ? j + 1 : j + 2;
+        auto c = r[j + 3] <= r[j + 4] ? j + 3 : j + 4;
+        auto d = r[j + 5] <= r[j + 6] ? j + 5 : j + 6;
+        if (r[j + 7] < r[c]) c = j + 7;
+        auto e = r[b] < r[a] ? b : a;
+        auto f = r[d] < r[c] ? d : c;
+        auto g = r[f] < r[e] ? f : e;
+        std::swap(r[i], r[g]);
+    }
+
+    adaptiveQuickselect(r, n, _9);
+    return expandPartition(r, 0, n, _9, totalLength ? totalLength : length);
 }
 
 /**

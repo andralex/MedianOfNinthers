@@ -21,6 +21,27 @@ static size_t partition(T*const r, const size_t length)
     return expandPartition(r, lo, lo + pivot, hi, length);
 }
 
+template <class T>
+size_t medianOfMinima3Sampled(T*const r, const size_t length)
+{
+    const size_t totalSamples = length / 512;
+    const size_t chunk = totalSamples / 3;
+    const size_t gap = (length - chunk * 3) / 2;
+    assert(length / 2 >= chunk / 2);
+    const size_t lo = length / 2 - chunk / 2;
+    const size_t hi = lo + chunk;
+
+    for (size_t i = 0; i < chunk; ++i)
+    {
+        const auto j = lo + i, k = hi + gap + i;
+        const auto a = r[j] <= r[k] ? j : k;
+        if (r[a] < r[i]) std::swap(r[i], r[a]);
+    }
+    const auto cut = 3 * chunk / 4;
+    adaptiveQuickselect(r, cut, chunk);
+    return expandPartition(r, 0, cut, chunk, length);
+}
+
 template <class T, size_t (*partition)(T*, size_t)>
 void quicksort(T* r, T* end)
 {
@@ -29,18 +50,19 @@ void quicksort(T* r, T* end)
         const size_t length = end - r;
         assert(length >= 5);
 
-        if (length < 5000000)
+        if (length < 2500000)
         {
             return std::sort(r, end);
         }
 
-        //auto pivot = partition(r, length);
+        const auto pivot = partition(r, length);
         //const auto pivot = medianOfMinima3(r, 8 * length / 60, length);
         //const auto pivot = medianOfMinima4(r, 4 * length / 80, length);
         //const auto pivot = medianOfMinima8(r, 10 * length / 160, length);
-        const auto sampleLen = length / 6;
-        const auto pivot = medianOfMinima8(
-            r, 10 * sampleLen / 160, sampleLen, length);
+        // const auto sampleLen = length;
+        // const auto pivot = medianOfMinima3(
+        //     r, sampleLen / 4, sampleLen);
+        //const auto pivot = medianOfMinima3Sampled(r, length);
 
         if (pivot <= length / 2)
         {
