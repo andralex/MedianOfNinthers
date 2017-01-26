@@ -7,7 +7,11 @@ $(shell mkdir -p $T)
 D = $(HOME)/data/median
 $(shell mkdir -p $D)
 # Directory where results are kept
+ifeq ($(DRAFT),1)
+R = results_draft
+else
 R = results
+endif
 $(shell mkdir -p $R)
 
 # Data sizes present in the paper
