@@ -23,7 +23,7 @@ static size_t medianOfMinima2(T*const r, const size_t n, const size_t length)
     assert(n < _2);
     for (size_t i = 0; i < _2; ++i)
     {
-        if (r[i + _2] < r[i]) std::swap(r[i], r[i + _2]);
+        if (r[i + _2] < r[i]) cswap(r[i], r[i + _2]);
     }
     adaptiveQuickselect(r, n, _2);
     return expandPartition(r, 0, n, _2, length);
@@ -40,7 +40,7 @@ static size_t medianOfMaxima2(T*const r, const size_t n, const size_t length)
     assert(n >= lo);
     for (size_t i = lo; i < length; ++i)
     {
-        if (r[i - _2] > r[i]) std::swap(r[i - _2], r[i]);
+        if (r[i - _2] > r[i]) cswap(r[i - _2], r[i]);
     }
     adaptiveQuickselect(r + lo, n - lo, _2);
     return expandPartition(r, lo, n, length, length);
@@ -64,7 +64,7 @@ static size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
         auto e = r[b] < r[a] ? b : a;
         auto f = r[d] < r[c] ? d : c;
         auto g = r[f] < r[e] ? f : e;
-        std::swap(r[i], r[g]);
+        cswap(r[i], r[g]);
     }
     adaptiveQuickselect(r, n, _8);
     return expandPartition(r, 0, n, _8, length);
@@ -88,7 +88,7 @@ static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
         auto e = r[a] > r[b] ? a : b;
         auto f = r[c] > r[d] ? c : d;
         auto g = r[e] > r[f] ? e : f;
-        std::swap(r[g], r[i]);
+        cswap(r[g], r[i]);
     }
     adaptiveQuickselect(r + lo, n - lo, _8);
     return expandPartition(r, lo, n, length, length);
@@ -142,7 +142,7 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
             auto pivot = n;
             for (++n; n < length; ++n)
                 if (r[n] < r[pivot]) pivot = n;
-            std::swap(r[0], r[pivot]);
+            cswap(r[0], r[pivot]);
             return;
         }
         if (n + 1 == length)
@@ -151,7 +151,7 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
             auto pivot = 0;
             for (n = 1; n < length; ++n)
                 if (r[pivot] < r[n]) pivot = n;
-            std::swap(r[pivot], r[length - 1]);
+            cswap(r[pivot], r[length - 1]);
             return;
         }
         assert(n < length);

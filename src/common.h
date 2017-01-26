@@ -9,6 +9,22 @@
 #include <cassert>
 
 /**
+Instrumented swap
+*/
+#ifdef COUNT_SWAPS
+extern unsigned long g_swaps;
+#endif
+
+template <class T>
+inline void cswap(T& lhs, T& rhs)
+{
+    std::swap(lhs, rhs);
+#ifdef COUNT_SWAPS
+    ++g_swaps;
+#endif
+}
+
+/**
 Swaps the median of r[a], r[b], and r[c] into r[b].
 */
 template <class T>
@@ -19,17 +35,17 @@ void median3(T* r, size_t a, size_t b, size_t c)
         if (r[b] < r[c]) // b < a, b < c
         {
             if (r[c] < r[a]) // b < c < a
-                std::swap(r[b], r[c]);
+                cswap(r[b], r[c]);
             else  // b < a <= c
-                std::swap(r[b], r[a]);
+                cswap(r[b], r[a]);
         }
     }
     else if (r[c] < r[b]) // a <= b, c < b
     {
         if (r[c] < r[a]) // c < a <= b
-            std::swap(r[b], r[a]);
+            cswap(r[b], r[a]);
         else  // a <= c < b
-            std::swap(r[b], r[c]);
+            cswap(r[b], r[c]);
     }
     assert(r[a] <= r[b] && r[b] <= r[c] || r[a] >= r[b] && r[b] >= r[c]);
 }
@@ -44,7 +60,7 @@ void sort3(T* r, size_t a, size_t b, size_t c)
     {
         if (r[c] < r[b]) // c < b < a
         {
-            std::swap(r[a], r[c]); // a < b < c
+            cswap(r[a], r[c]); // a < b < c
         }
         else // b < a, b <= c
         {
@@ -93,17 +109,17 @@ void partition4(T* r, size_t a, size_t b, size_t c, size_t d)
     {
         // In the median of 5 algorithm, consider r[e] infinite
         if (r[c] < r[a]) {
-    		std::swap(r[a], r[c]);
+    		cswap(r[a], r[c]);
     	} // a <= c
     	if (r[d] < r[b]) {
-    		std::swap(r[b], r[d]);
+    		cswap(r[b], r[d]);
     	} // a <= c, b <= d
     	if (r[d] < r[c]) {
-    		std::swap(r[c], r[d]); // a <= d, b <= c < d
-    		std::swap(r[a], r[b]); // b <= d, a <= c < d
+    		cswap(r[c], r[d]); // a <= d, b <= c < d
+    		cswap(r[a], r[b]); // b <= d, a <= c < d
     	} // a <= c <= d, b <= d
 		if (r[c] < r[b]) { // a <= c <= d, c < b <= d
-			std::swap(r[b], r[c]); // a <= b <= c <= d
+			cswap(r[b], r[c]); // a <= b <= c <= d
     	} // a <= b <= c <= d
         assert(r[a] <= r[c] && r[b] <= r[c] && r[c] <= r[d]);
     }
@@ -112,19 +128,19 @@ void partition4(T* r, size_t a, size_t b, size_t c, size_t d)
         // In the median of 5 algorithm consider r[a] infinitely small, then
         // change b->a. c->b, d->c, e->d
     	if (r[c] < r[a]) {
-    		std::swap(r[a], r[c]);
+    		cswap(r[a], r[c]);
     	}
     	if (r[c] < r[b]) {
-    		std::swap(r[b], r[c]);
+    		cswap(r[b], r[c]);
     	}
     	if (r[d] < r[a]) {
-    		std::swap(r[a], r[d]);
+    		cswap(r[a], r[d]);
     	}
     	if (r[d] < r[b]) {
-    		std::swap(r[b], r[d]);
+    		cswap(r[b], r[d]);
     	} else {
     		if (r[b] < r[a]) {
-    			std::swap(r[a], r[b]);
+    			cswap(r[a], r[b]);
     		}
     	}
         assert(r[a] <= r[b] && r[b] <= r[c] && r[b] <= r[d]);
@@ -141,26 +157,26 @@ void partition5(T* r, size_t a, size_t b, size_t c, size_t d, size_t e)
     assert(a != b && a != c && a != d && a != e && b != c && b != d && b != e
         && c != d && c != e && d != e);
     if (r[c] < r[a]) {
-		std::swap(r[a], r[c]);
+		cswap(r[a], r[c]);
 	}
 	if (r[d] < r[b]) {
-		std::swap(r[b], r[d]);
+		cswap(r[b], r[d]);
 	}
 	if (r[d] < r[c]) {
-		std::swap(r[c], r[d]);
-		std::swap(r[a], r[b]);
+		cswap(r[c], r[d]);
+		cswap(r[a], r[b]);
 	}
 	if (r[e] < r[b]) {
-		std::swap(r[b], r[e]);
+		cswap(r[b], r[e]);
 	}
 	if (r[e] < r[c]) {
-		std::swap(r[c], r[e]);
+		cswap(r[c], r[e]);
 		if (r[c] < r[a]) {
-			std::swap(r[a], r[c]);
+			cswap(r[a], r[c]);
 		}
 	} else {
 		if (r[c] < r[b]) {
-			std::swap(r[b], r[c]);
+			cswap(r[b], r[c]);
 		}
 	}
     assert(r[a] <= r[c] && r[b] <= r[c] && r[c] <= r[d] && r[c] <= r[e]);
@@ -173,7 +189,7 @@ template <class T>
 T* pivotPartition(T* r, size_t k, size_t length)
 {
     assert(k < length);
-    std::swap(*r, r[k]);
+    cswap(*r, r[k]);
     size_t lo = 1, hi = length - 1;
     for (;; ++lo, --hi)
     {
@@ -190,11 +206,11 @@ T* pivotPartition(T* r, size_t k, size_t length)
         if (lo >= hi) break;
         // found the right bound: r[hi] <= r[0], swap & make progress
         assert(r[lo] >= r[hi]);
-        std::swap(r[lo], r[hi]);
+        cswap(r[lo], r[hi]);
     }
 loop_done:
     --lo;
-    std::swap(r[lo], *r);
+    cswap(r[lo], *r);
     return r + lo;
 }
 
@@ -211,7 +227,7 @@ void quickselect(T* r, T* mid, T* end)
     case 1:
         return;
     case 2:
-        if (*r > r[1]) std::swap(*r, r[1]);
+        if (*r > r[1]) cswap(*r, r[1]);
         return;
     case 3:
         sort3(r, 0, 1, 2);
@@ -289,7 +305,7 @@ template <class T>
 void ninther(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
     size_t _6, size_t _7, size_t _8, size_t _9)
 {
-    std::swap(r[_5], r[median3Index(r,
+    cswap(r[_5], r[median3Index(r,
         median3Index(r, _1, _2, _3),
         median3Index(r, _4, _5, _6),
         median3Index(r, _7, _8, _9))
@@ -318,7 +334,7 @@ size_t expandPartitionRight(T* r, size_t hi, size_t rite)
         if (r[rite] >= r[0]) continue;
         ++pivot;
         assert(r[pivot] >= r[0]);
-        std::swap(r[rite], r[pivot]);
+        cswap(r[rite], r[pivot]);
     }
     // Second loop: make left and pivot meet
     for (; rite > pivot; --rite)
@@ -329,14 +345,14 @@ size_t expandPartitionRight(T* r, size_t hi, size_t rite)
             ++pivot;
             if (r[0] < r[pivot])
             {
-                std::swap(r[rite], r[pivot]);
+                cswap(r[rite], r[pivot]);
                 break;
             }
         }
     }
 
 done:
-    std::swap(r[0], r[pivot]);
+    cswap(r[0], r[pivot]);
     return pivot;
 }
 
@@ -362,7 +378,7 @@ size_t expandPartitionLeft(T* r, size_t lo, size_t pivot)
         if (r[oldPivot] >= r[left]) continue;
         --pivot;
         assert(r[oldPivot] >= r[pivot]);
-        std::swap(r[left], r[pivot]);
+        cswap(r[left], r[pivot]);
     }
     // Second loop: make left and pivot meet
     for (;; ++left)
@@ -375,14 +391,14 @@ size_t expandPartitionLeft(T* r, size_t lo, size_t pivot)
             --pivot;
             if (r[pivot] < r[oldPivot])
             {
-                std::swap(r[left], r[pivot]);
+                cswap(r[left], r[pivot]);
                 break;
             }
         }
     }
 
 done:
-    std::swap(r[oldPivot], r[pivot]);
+    cswap(r[oldPivot], r[pivot]);
     return pivot;
 }
 
@@ -421,6 +437,6 @@ size_t expandPartition(T* r, size_t lo, size_t pivot, size_t hi, size_t length)
                     expandPartitionLeft(r + left, lo - left, pivot - left);
             if (r[pivot] >= r[length]) break;
         }
-        std::swap(r[left], r[length]);
+        cswap(r[left], r[length]);
     }
 }

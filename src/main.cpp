@@ -13,8 +13,10 @@
 using namespace std;
 
 extern void (*computeSelection)(double*, double*, double*);
-
 const size_t epochs = 21;
+#ifdef COUNT_SWAPS
+unsigned long g_swaps = 0;
+#endif
 
 int main(int argc, char** argv)
 {
@@ -48,6 +50,9 @@ int main(int argc, char** argv)
     {
         vector<double> v {data, data + dataLen};
         auto b = &v[0];
+#ifdef COUNT_SWAPS
+        g_swaps = 0;
+#endif
         //////////////////// TIMING {
         Timer t;
         (*computeSelection)(b, b + index, b + dataLen);
@@ -65,18 +70,21 @@ int main(int argc, char** argv)
         {
             fprintf(stderr, "%s%lu: %g\n", reshuffle ? "shuffled " : "",
                 dataLen, median);
+#ifdef COUNT_SWAPS
+            fprintf(stderr, "swaps: %lu\n", g_swaps);
+#endif
             break;
         }
         if (reshuffle)
             shuffle(data, data + dataLen, g);
     }
+
     // Verify
-#ifdef NDEBUG
     vector<double> v {data, data + dataLen};
     sort(v.begin(), v.end());
     if (median != v[index]) return 8;
-#endif
 
+    // Print results
     sort(durations, durations + epochs);
     double sum = 0;
     for (size_t i = 0; i < epochs - 2; ++i) sum += durations[i];

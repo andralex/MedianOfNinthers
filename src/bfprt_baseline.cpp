@@ -16,7 +16,7 @@ static T* partition(T* r, T* end)
     for (size_t i = 4; i < len; i += 5, ++j)
     {
         partition5(r, i - 4, i - 3, i, i - 2, i - 1);
-        std::swap(r[i], r[j]);
+        cswap(r[i], r[j]);
     }
     quickselect<double, &partition>(r, r + j / 2, r + j);
     return pivotPartition(r, j / 2, len);
