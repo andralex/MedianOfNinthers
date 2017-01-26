@@ -256,7 +256,7 @@ void quickselect(T* r, T* mid, T* end)
             auto pivot = r;
             for (++mid; mid < end; ++mid)
                 if (*mid < *pivot) pivot = mid;
-            std::iter_swap(r, pivot);
+            cswap(*r, *pivot);
             return;
         }
         if (mid + 1 == end)
@@ -265,7 +265,7 @@ void quickselect(T* r, T* mid, T* end)
             auto pivot = r;
             for (mid = r + 1; mid < end; ++mid)
                 if (*pivot < *mid) pivot = mid;
-            std::iter_swap(pivot, end - 1);
+            cswap(*pivot, end[-1]);
             return;
         }
         auto pivot = partition(r, end);

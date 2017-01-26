@@ -44,14 +44,12 @@ L = a b c d e f g h i j k l m n o p q r s t u v w x y z
 GBOOKS_LANGS = eng fre ger ita rus spa
 GBOOKS_CORPORA = $(foreach l,$(GBOOKS_LANGS),googlebooks-$l-all-1gram-20120701)
 
-# All data sets ever
-DATASETS = $(SYNTHETIC_DATASETS) $(GBOOKS_CORPORA)
-
 # All measurement output files
 MEASUREMENT_OUTPUTS = $(foreach x,$(SYNTHETIC_DATASETS),$(MEASUREMENTS_$x)) \
   $(foreach x,$(call XPROD,$(ALGOS),_,$(GBOOKS_CORPORA)),$D/$x_freq.out)
 
-# Results files will be included in the paper
+# Results files will be included in the paper. Change this to affect what
+# experiments are run.
 RESULTS = $(addprefix $R/,$(SYNTHETIC_DATASETS) gbooks_freq)
 
 ###############################################################################
@@ -99,8 +97,8 @@ $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call GENERATE_DATA,$d)))
 # Measurements
 ################################################################################
 
-.PHONY: measurements $(DATASETS)
-measurements: $(DATASETS)
+.PHONY: measurements $(SYNTHETIC_DATASETS) $(GBOOKS_CORPORA)
+measurements: $(SYNTHETIC_DATASETS) $(GBOOKS_CORPORA)
 
 gbooks: $(foreach x,$(call XPROD,$(GBOOKS_CORPORA),_freq_,$(ALGOS)),$D/$x.out)
 
