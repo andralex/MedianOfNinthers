@@ -14,6 +14,9 @@ Instrumented swap
 #ifdef COUNT_SWAPS
 extern unsigned long g_swaps;
 #endif
+#ifdef COUNT_WASTED_SWAPS
+extern unsigned long g_wastedSwaps;
+#endif
 
 template <class T>
 inline void cswap(T& lhs, T& rhs)
@@ -21,6 +24,9 @@ inline void cswap(T& lhs, T& rhs)
     std::swap(lhs, rhs);
 #ifdef COUNT_SWAPS
     ++g_swaps;
+#endif
+#ifdef COUNT_WASTED_SWAPS
+    if (lhs == rhs) ++g_wastedSwaps;
 #endif
 }
 

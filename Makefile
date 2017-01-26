@@ -17,7 +17,7 @@ $(shell mkdir -p $R)
 # Data sizes present in the paper
 ifeq ($(DRAFT),1)
 SIZES = 10000 31620 100000 316220 1000000 3162280
-CFLAGS = -O4 -pg
+CFLAGS = -O4 -DCOUNT_SWAPS -DCOUNT_WASTED_SWAPS
 else
 SIZES = 10000 31620 100000 316220 1000000 3162280 10000000 31622800 100000000
 CFLAGS = -O4 -DNDEBUG
@@ -62,7 +62,7 @@ clean:
 	rm -rf $T/
 
 clean-measurements:
-	rm -rf $T/ $D/*.out $D/*.check $R $D/*.tmp
+	rm -rf $T/ $D/*.out $D/*.stats $R $D/*.tmp
 
 pristine:
 	rm -rf $T/ $D/
@@ -110,7 +110,7 @@ $d: $(MEASUREMENTS_$d);\
 
 define MAKE_MEASUREMENT
 $D/%_$1.out: $T/$1 $D/%.dat
-	$$^ >$$@.tmp 2>$$@.check
+	$$^ >$$@.tmp 2>$$@.stats
 	mv $$@.tmp $$@
 $T/$1: src/$1.cpp $(CXX_CODE)
 	$(CXX) $(CFLAGS) -std=c++14 -o $$@ $$(patsubst %.h,,$$^)

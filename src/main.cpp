@@ -17,6 +17,9 @@ const size_t epochs = 21;
 #ifdef COUNT_SWAPS
 unsigned long g_swaps = 0;
 #endif
+#ifdef COUNT_WASTED_SWAPS
+unsigned long g_wastedSwaps = 0;
+#endif
 
 int main(int argc, char** argv)
 {
@@ -53,6 +56,9 @@ int main(int argc, char** argv)
 #ifdef COUNT_SWAPS
         g_swaps = 0;
 #endif
+#ifdef COUNT_WASTED_SWAPS
+        g_wastedSwaps = 0;
+#endif
         //////////////////// TIMING {
         Timer t;
         (*computeSelection)(b, b + index, b + dataLen);
@@ -68,10 +74,13 @@ int main(int argc, char** argv)
         }
         if (++i == epochs)
         {
-            fprintf(stderr, "%s%lu: %g\n", reshuffle ? "shuffled " : "",
-                dataLen, median);
+            fprintf(stderr, "size: %lu\nmedian: %g\n", dataLen, median);
+            if (reshuffle) fprintf(stderr, "shuffled: 1\n");
 #ifdef COUNT_SWAPS
             fprintf(stderr, "swaps: %lu\n", g_swaps);
+#endif
+#ifdef COUNT_WASTED_SWAPS
+            fprintf(stderr, "wasted_swaps: %lu\n", g_wastedSwaps);
 #endif
             break;
         }
