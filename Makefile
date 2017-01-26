@@ -32,7 +32,7 @@ ALGOS = nth_element rnd3pivot ninther median_of_ninthers bfprt_baseline
 # Data sets (synthetic)
 SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted
 # Benchmark files we're interested in
-MK_OUTFILES = MEASUREMENTS_$1 = $(foreach n,$(SIZES),$(foreach a,$(ALGOS),$D/$a_$1_$n.out))
+MK_OUTFILES = MEASUREMENTS_$1 = $(foreach n,$(SIZES),$(foreach a,$(ALGOS),$D/$1_$n_$a.out))
 $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call MK_OUTFILES,$d)))
 
 # Data sets (Google Books)
@@ -98,14 +98,14 @@ $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call GENERATE_DATA,$d)))
 .PHONY: measurements $(DATASETS)
 measurements: $(DATASETS)
 
-gbooks: $(foreach x,$(call XPROD,$(ALGOS),_,$(GBOOKS_CORPORA)),$D/$x_freq.out)
+gbooks: $(foreach x,$(call XPROD,$(GBOOKS_CORPORA),_freq_,$(ALGOS)),$D/$x.out)
 
 $(foreach d,$(SYNTHETIC_DATASETS),$(eval \
 $d: $(MEASUREMENTS_$d);\
 ))
 
 define MAKE_MEASUREMENT
-$D/$1_%.out: $T/$1 $D/%.dat
+$D/%_$1.out: $T/$1 $D/%.dat
 	$$^ >$$@.tmp 2>$$@.check
 	mv $$@.tmp $$@
 $T/$1: src/$1.cpp $(CXX_CODE)
@@ -120,14 +120,14 @@ $(foreach a,$(ALGOS),$(eval $(call MAKE_MEASUREMENT,$a)))
 
 $R/gbooks_freq: gbooks
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$D/$a_googlebooks-$l-all-1gram-20120701_freq.out) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$D/googlebooks-$l-all-1gram-20120701_freq_$a.out) >>$@.tmp &&) true
 	mv $@.tmp $@
 
 define MAKE_RESULT_FILE
 $R/$1: $$(MEASUREMENTS_$1)
 	echo $$^
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$D/$$a_$1_$$n.out) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$D/$1_$$n_$$a.out) >>$$@.tmp &&) true
 	mv $$@.tmp $$@
 endef
 
