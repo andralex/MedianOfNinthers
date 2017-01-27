@@ -20,6 +20,9 @@ unsigned long g_swaps = 0;
 #ifdef COUNT_WASTED_SWAPS
 unsigned long g_wastedSwaps = 0;
 #endif
+#ifdef COUNT_COMPARISONS
+unsigned long g_comparisons = 0;
+#endif
 
 int main(int argc, char** argv)
 {
@@ -59,6 +62,9 @@ int main(int argc, char** argv)
 #ifdef COUNT_WASTED_SWAPS
         g_wastedSwaps = 0;
 #endif
+#ifdef COUNT_COMPARISONS
+        g_comparisons = 0;
+#endif
         //////////////////// TIMING {
         Timer t;
         (*computeSelection)(b, b + index, b + dataLen);
@@ -76,6 +82,9 @@ int main(int argc, char** argv)
         {
             fprintf(stderr, "size: %lu\nmedian: %g\n", dataLen, median);
             if (reshuffle) fprintf(stderr, "shuffled: 1\n");
+#ifdef COUNT_COMPARISONS
+            fprintf(stderr, "comparisons: %lu\n", g_comparisons);
+#endif
 #ifdef COUNT_SWAPS
             fprintf(stderr, "swaps: %lu\n", g_swaps);
 #endif

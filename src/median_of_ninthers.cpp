@@ -23,7 +23,7 @@ static size_t medianOfMinima2(T*const r, const size_t n, const size_t length)
     assert(n < _2);
     for (size_t i = 0; i < _2; ++i)
     {
-        if (r[i + _2] < r[i]) cswap(r[i], r[i + _2]);
+        if (r[i + _2] <CNT r[i]) cswap(r[i], r[i + _2]);
     }
     adaptiveQuickselect(r, n, _2);
     return expandPartition(r, 0, n, _2, length);
@@ -40,7 +40,7 @@ static size_t medianOfMaxima2(T*const r, const size_t n, const size_t length)
     assert(n >= lo);
     for (size_t i = lo; i < length; ++i)
     {
-        if (r[i - _2] > r[i]) cswap(r[i - _2], r[i]);
+        if (r[i - _2] >CNT r[i]) cswap(r[i - _2], r[i]);
     }
     adaptiveQuickselect(r + lo, n - lo, _2);
     return expandPartition(r, lo, n, length, length);
@@ -57,13 +57,13 @@ static size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
     assert(n < _8);
     for (size_t i = 0, j = _8; i < _8; ++i, j += 7)
     {
-        auto a = r[i] <= r[j] ? i : j;
-        auto b = r[j + 1] <= r[j + 2] ? j + 1 : j + 2;
-        auto c = r[j + 3] <= r[j + 4] ? j + 3 : j + 4;
-        auto d = r[j + 5] <= r[j + 6] ? j + 5 : j + 6;
-        auto e = r[b] < r[a] ? b : a;
-        auto f = r[d] < r[c] ? d : c;
-        auto g = r[f] < r[e] ? f : e;
+        auto a = r[i] <=CNT r[j] ? i : j;
+        auto b = r[j + 1] <=CNT r[j + 2] ? j + 1 : j + 2;
+        auto c = r[j + 3] <=CNT r[j + 4] ? j + 3 : j + 4;
+        auto d = r[j + 5] <=CNT r[j + 6] ? j + 5 : j + 6;
+        auto e = r[b] <CNT r[a] ? b : a;
+        auto f = r[d] <CNT r[c] ? d : c;
+        auto g = r[f] <CNT r[e] ? f : e;
         cswap(r[i], r[g]);
     }
     adaptiveQuickselect(r, n, _8);
@@ -81,13 +81,13 @@ static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
     const auto lo = length - _8;
     for (size_t i = lo, j = rem; i < length; ++i, j += 7)
     {
-        auto a = r[j] > r[j + 1] ? j : j + 1;
-        auto b = r[j + 2] > r[j + 3] ? j + 2 : j + 3;
-        auto c = r[j + 4] > r[j + 5] ? j + 4 : j + 5;
-        auto d = r[j + 6] > r[i] ? j + 6 : i;
-        auto e = r[a] > r[b] ? a : b;
-        auto f = r[c] > r[d] ? c : d;
-        auto g = r[e] > r[f] ? e : f;
+        auto a = r[j] >CNT r[j + 1] ? j : j + 1;
+        auto b = r[j + 2] >CNT r[j + 3] ? j + 2 : j + 3;
+        auto c = r[j + 4] >CNT r[j + 5] ? j + 4 : j + 5;
+        auto d = r[j + 6] >CNT r[i] ? j + 6 : i;
+        auto e = r[a] >CNT r[b] ? a : b;
+        auto f = r[c] >CNT r[d] ? c : d;
+        auto g = r[e] >CNT r[f] ? e : f;
         cswap(r[g], r[i]);
     }
     adaptiveQuickselect(r + lo, n - lo, _8);
@@ -141,7 +141,7 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
             // That would be the max
             auto pivot = n;
             for (++n; n < length; ++n)
-                if (r[n] < r[pivot]) pivot = n;
+                if (r[n] <CNT r[pivot]) pivot = n;
             cswap(r[0], r[pivot]);
             return;
         }
@@ -150,7 +150,7 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
             // That would be the min
             auto pivot = 0;
             for (n = 1; n < length; ++n)
-                if (r[pivot] < r[n]) pivot = n;
+                if (r[pivot] <CNT r[n]) pivot = n;
             cswap(r[pivot], r[length - 1]);
             return;
         }

@@ -9,7 +9,7 @@
 #include <cassert>
 
 /**
-Instrumented swap
+Instrumentation counters
 */
 #ifdef COUNT_SWAPS
 extern unsigned long g_swaps;
@@ -17,7 +17,13 @@ extern unsigned long g_swaps;
 #ifdef COUNT_WASTED_SWAPS
 extern unsigned long g_wastedSwaps;
 #endif
+#ifdef COUNT_COMPARISONS
+extern unsigned long g_comparisons;
+#endif
 
+/**
+Instrumented swap
+*/
 template <class T>
 inline void cswap(T& lhs, T& rhs)
 {
@@ -31,24 +37,69 @@ inline void cswap(T& lhs, T& rhs)
 }
 
 /**
+Instrumented comparisons
+*/
+template <class T>
+inline bool lt(const T& a, const T& b)
+{
+#ifdef COUNT_COMPARISONS
+    ++g_comparisons;
+#endif
+    return a < b;
+}
+
+template <class T>
+inline bool le(const T& a, const T& b)
+{
+#ifdef COUNT_COMPARISONS
+    ++g_comparisons;
+#endif
+    return a <= b;
+}
+
+template <class T>
+inline bool gt(const T& a, const T& b)
+{
+#ifdef COUNT_COMPARISONS
+    ++g_comparisons;
+#endif
+    return a > b;
+}
+
+template <class T>
+inline bool ge(const T& a, const T& b)
+{
+#ifdef COUNT_COMPARISONS
+    ++g_comparisons;
+#endif
+    return a >= b;
+}
+
+#ifdef COUNT_COMPARISONS
+#define CNT (++g_comparisons, 0)+
+#else
+#define CNT
+#endif
+
+/**
 Swaps the median of r[a], r[b], and r[c] into r[b].
 */
 template <class T>
 void median3(T* r, size_t a, size_t b, size_t c)
 {
-    if (r[b] < r[a]) // b < a
+    if (r[b] <CNT r[a]) // b < a
     {
-        if (r[b] < r[c]) // b < a, b < c
+        if (r[b] <CNT r[c]) // b < a, b < c
         {
-            if (r[c] < r[a]) // b < c < a
+            if (r[c] <CNT r[a]) // b < c < a
                 cswap(r[b], r[c]);
             else  // b < a <= c
                 cswap(r[b], r[a]);
         }
     }
-    else if (r[c] < r[b]) // a <= b, c < b
+    else if (r[c] <CNT r[b]) // a <= b, c < b
     {
-        if (r[c] < r[a]) // c < a <= b
+        if (r[c] <CNT r[a]) // c < a <= b
             cswap(r[b], r[a]);
         else  // a <= c < b
             cswap(r[b], r[c]);
@@ -62,9 +113,9 @@ Sorts in place r[a], r[b], and r[c].
 template <class T>
 void sort3(T* r, size_t a, size_t b, size_t c)
 {
-    if (r[b] < r[a]) // b < a
+    if (r[b] <CNT r[a]) // b < a
     {
-        if (r[c] < r[b]) // c < b < a
+        if (r[c] <CNT r[b]) // c < b < a
         {
             cswap(r[a], r[c]); // a < b < c
         }
@@ -72,7 +123,7 @@ void sort3(T* r, size_t a, size_t b, size_t c)
         {
             auto t = r[a];
             r[a] = r[b];
-            if (r[c] < t) // b <= c < a
+            if (r[c] <CNT t) // b <= c < a
             {
                 r[b] = r[c];
                 r[c] = t;
@@ -83,11 +134,11 @@ void sort3(T* r, size_t a, size_t b, size_t c)
             }
         }
     }
-    else if (r[c] < r[b]) // a <= b, c < b
+    else if (r[c] <CNT r[b]) // a <= b, c < b
     {
         auto t = r[c];
         r[c] = r[b];
-        if (t < r[a]) // c < a < b
+        if (t <CNT r[a]) // c < a < b
         {
             r[b] = r[a];
             r[a] = t;
@@ -114,17 +165,17 @@ void partition4(T* r, size_t a, size_t b, size_t c, size_t d)
     /* static */ if (leanRight)
     {
         // In the median of 5 algorithm, consider r[e] infinite
-        if (r[c] < r[a]) {
+        if (r[c] <CNT r[a]) {
     		cswap(r[a], r[c]);
     	} // a <= c
-    	if (r[d] < r[b]) {
+    	if (r[d] <CNT r[b]) {
     		cswap(r[b], r[d]);
     	} // a <= c, b <= d
-    	if (r[d] < r[c]) {
+    	if (r[d] <CNT r[c]) {
     		cswap(r[c], r[d]); // a <= d, b <= c < d
     		cswap(r[a], r[b]); // b <= d, a <= c < d
     	} // a <= c <= d, b <= d
-		if (r[c] < r[b]) { // a <= c <= d, c < b <= d
+		if (r[c] <CNT r[b]) { // a <= c <= d, c < b <= d
 			cswap(r[b], r[c]); // a <= b <= c <= d
     	} // a <= b <= c <= d
         assert(r[a] <= r[c] && r[b] <= r[c] && r[c] <= r[d]);
@@ -133,19 +184,19 @@ void partition4(T* r, size_t a, size_t b, size_t c, size_t d)
     {
         // In the median of 5 algorithm consider r[a] infinitely small, then
         // change b->a. c->b, d->c, e->d
-    	if (r[c] < r[a]) {
+    	if (r[c] <CNT r[a]) {
     		cswap(r[a], r[c]);
     	}
-    	if (r[c] < r[b]) {
+    	if (r[c] <CNT r[b]) {
     		cswap(r[b], r[c]);
     	}
-    	if (r[d] < r[a]) {
+    	if (r[d] <CNT r[a]) {
     		cswap(r[a], r[d]);
     	}
-    	if (r[d] < r[b]) {
+    	if (r[d] <CNT r[b]) {
     		cswap(r[b], r[d]);
     	} else {
-    		if (r[b] < r[a]) {
+    		if (r[b] <CNT r[a]) {
     			cswap(r[a], r[b]);
     		}
     	}
@@ -162,26 +213,26 @@ void partition5(T* r, size_t a, size_t b, size_t c, size_t d, size_t e)
 {
     assert(a != b && a != c && a != d && a != e && b != c && b != d && b != e
         && c != d && c != e && d != e);
-    if (r[c] < r[a]) {
+    if (r[c] <CNT r[a]) {
 		cswap(r[a], r[c]);
 	}
-	if (r[d] < r[b]) {
+	if (r[d] <CNT r[b]) {
 		cswap(r[b], r[d]);
 	}
-	if (r[d] < r[c]) {
+	if (r[d] <CNT r[c]) {
 		cswap(r[c], r[d]);
 		cswap(r[a], r[b]);
 	}
-	if (r[e] < r[b]) {
+	if (r[e] <CNT r[b]) {
 		cswap(r[b], r[e]);
 	}
-	if (r[e] < r[c]) {
+	if (r[e] <CNT r[c]) {
 		cswap(r[c], r[e]);
-		if (r[c] < r[a]) {
+		if (r[c] <CNT r[a]) {
 			cswap(r[a], r[c]);
 		}
 	} else {
-		if (r[c] < r[b]) {
+		if (r[c] <CNT r[b]) {
 			cswap(r[b], r[c]);
 		}
 	}
@@ -202,11 +253,11 @@ T* pivotPartition(T* r, size_t k, size_t length)
         for (;; ++lo)
         {
             if (lo > hi) goto loop_done;
-            if (r[lo] >= *r) break;
+            if (r[lo] >=CNT *r) break;
         }
         // found the left bound:  r[lo] >= r[0]
         assert(lo <= hi);
-        for (; *r < r[hi]; --hi)
+        for (; *r <CNT r[hi]; --hi)
         {
         }
         if (lo >= hi) break;
@@ -233,7 +284,7 @@ void quickselect(T* r, T* mid, T* end)
     case 1:
         return;
     case 2:
-        if (*r > r[1]) cswap(*r, r[1]);
+        if (*r >CNT r[1]) cswap(*r, r[1]);
         return;
     case 3:
         sort3(r, 0, 1, 2);
@@ -255,7 +306,7 @@ void quickselect(T* r, T* mid, T* end)
         select_min:
             auto pivot = r;
             for (++mid; mid < end; ++mid)
-                if (*mid < *pivot) pivot = mid;
+                if (*mid <CNT *pivot) pivot = mid;
             cswap(*r, *pivot);
             return;
         }
@@ -264,7 +315,7 @@ void quickselect(T* r, T* mid, T* end)
         select_max:
             auto pivot = r;
             for (mid = r + 1; mid < end; ++mid)
-                if (*pivot < *mid) pivot = mid;
+                if (*pivot <CNT *mid) pivot = mid;
             cswap(*pivot, end[-1]);
             return;
         }
@@ -288,16 +339,16 @@ anything.
 template <class T>
 size_t median3Index(const T* r, size_t a, size_t b, size_t c)
 {
-    if (r[b] < r[a]) // b < a
+    if (r[b] <CNT r[a]) // b < a
     {
-        if (r[b] < r[c]) // b < a, b < c
+        if (r[b] <CNT r[c]) // b < a, b < c
         {
-            return r[c] < r[a] ? c : a;
+            return r[c] <CNT r[a] ? c : a;
         }
     }
-    else if (r[c] < r[b]) // a <= b, c < b
+    else if (r[c] <CNT r[b]) // a <= b, c < b
     {
-        return r[c] < r[a] ? a : c;
+        return r[c] <CNT r[a] ? a : c;
     }
     return b;
 }
@@ -337,7 +388,7 @@ size_t expandPartitionRight(T* r, size_t hi, size_t rite)
     for (; pivot < hi; --rite)
     {
         if (rite == hi) goto done;
-        if (r[rite] >= r[0]) continue;
+        if (r[rite] >=CNT r[0]) continue;
         ++pivot;
         assert(r[pivot] >= r[0]);
         cswap(r[rite], r[pivot]);
@@ -345,11 +396,11 @@ size_t expandPartitionRight(T* r, size_t hi, size_t rite)
     // Second loop: make left and pivot meet
     for (; rite > pivot; --rite)
     {
-        if (r[rite] >= r[0]) continue;
+        if (r[rite] >=CNT r[0]) continue;
         while (rite > pivot)
         {
             ++pivot;
-            if (r[0] < r[pivot])
+            if (r[0] <CNT r[pivot])
             {
                 cswap(r[rite], r[pivot]);
                 break;
@@ -381,7 +432,7 @@ size_t expandPartitionLeft(T* r, size_t lo, size_t pivot)
     for (; lo < pivot; ++left)
     {
         if (left == lo) goto done;
-        if (r[oldPivot] >= r[left]) continue;
+        if (r[oldPivot] >=CNT r[left]) continue;
         --pivot;
         assert(r[oldPivot] >= r[pivot]);
         cswap(r[left], r[pivot]);
@@ -390,12 +441,12 @@ size_t expandPartitionLeft(T* r, size_t lo, size_t pivot)
     for (;; ++left)
     {
         if (left == pivot) break;
-        if (r[oldPivot] >= r[left]) continue;
+        if (r[oldPivot] >=CNT r[left]) continue;
         for (;;)
         {
             if (left == pivot) goto done;
             --pivot;
-            if (r[pivot] < r[oldPivot])
+            if (r[pivot] <CNT r[oldPivot])
             {
                 cswap(r[left], r[pivot]);
                 break;
@@ -434,14 +485,14 @@ size_t expandPartition(T* r, size_t lo, size_t pivot, size_t hi, size_t length)
             if (left == lo)
                 return pivot +
                     expandPartitionRight(r + pivot, hi - pivot, length - pivot);
-            if (r[left] > r[pivot]) break;
+            if (r[left] >CNT r[pivot]) break;
         }
         for (;; --length)
         {
             if (length == hi)
                 return left +
                     expandPartitionLeft(r + left, lo - left, pivot - left);
-            if (r[pivot] >= r[length]) break;
+            if (r[pivot] >=CNT r[length]) break;
         }
         cswap(r[left], r[length]);
     }
