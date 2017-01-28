@@ -15,7 +15,7 @@ static T* partition(T* r, T* end)
     static std::mt19937 gen(1);
     std::uniform_int_distribution<> dis(0, len - 1);
     size_t x = dis(gen), y = dis(gen), z = dis(gen);
-    return pivotPartition(r, median3Index(r, x, y, z), len);
+    return pivotPartition(r, medianIndex(r, x, y, z), len);
 }
 
 void (*computeSelection)(double*, double*, double*)

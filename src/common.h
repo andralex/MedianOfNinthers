@@ -301,19 +301,11 @@ Returns the index of the median of r[a], r[b], and r[c] without writing
 anything.
 */
 template <class T>
-size_t median3Index(const T* r, size_t a, size_t b, size_t c)
+size_t medianIndex(const T* r, size_t a, size_t b, size_t c)
 {
-    if (r[b] <CNT r[a]) // b < a
-    {
-        if (r[b] <CNT r[c]) // b < a, b < c
-        {
-            return r[c] <CNT r[a] ? c : a;
-        }
-    }
-    else if (r[c] <CNT r[b]) // a <= b, c < b
-    {
-        return r[c] <CNT r[a] ? a : c;
-    }
+    if (r[a] >CNT r[c]) std::swap(a, c);
+    if (r[b] >CNT r[c]) return c;
+    if (r[b] <CNT r[a]) return a;
     return b;
 }
 
@@ -326,10 +318,10 @@ template <class T>
 void ninther(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
     size_t _6, size_t _7, size_t _8, size_t _9)
 {
-    cswap(r[_5], r[median3Index(r,
-        median3Index(r, _1, _2, _3),
-        median3Index(r, _4, _5, _6),
-        median3Index(r, _7, _8, _9))
+    cswap(r[_5], r[medianIndex(r,
+        medianIndex(r, _1, _2, _3),
+        medianIndex(r, _4, _5, _6),
+        medianIndex(r, _7, _8, _9))
     ]);
 }
 
