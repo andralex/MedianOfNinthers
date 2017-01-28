@@ -39,42 +39,6 @@ inline void cswap(T& lhs, T& rhs)
 /**
 Instrumented comparisons
 */
-template <class T>
-inline bool lt(const T& a, const T& b)
-{
-#ifdef COUNT_COMPARISONS
-    ++g_comparisons;
-#endif
-    return a < b;
-}
-
-template <class T>
-inline bool le(const T& a, const T& b)
-{
-#ifdef COUNT_COMPARISONS
-    ++g_comparisons;
-#endif
-    return a <= b;
-}
-
-template <class T>
-inline bool gt(const T& a, const T& b)
-{
-#ifdef COUNT_COMPARISONS
-    ++g_comparisons;
-#endif
-    return a > b;
-}
-
-template <class T>
-inline bool ge(const T& a, const T& b)
-{
-#ifdef COUNT_COMPARISONS
-    ++g_comparisons;
-#endif
-    return a >= b;
-}
-
 #ifdef COUNT_COMPARISONS
 #define CNT (++g_comparisons, 0)+
 #else
