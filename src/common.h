@@ -310,6 +310,40 @@ size_t medianIndex(const T* r, size_t a, size_t b, size_t c)
 }
 
 /**
+Returns the index of the median of r[a], r[b], r[c], and r[d] without writing
+anything. If leanRight is true, computes the upper median. Otherwise, conputes
+the lower median.
+*/
+template <bool leanRight, class T>
+static size_t medianIndex(T* r, size_t a, size_t b, size_t c, size_t d)
+{
+    if (r[d] <CNT r[c]) std::swap(c, d);
+    assert(r[c] <= r[d]);
+    /* static */ if (leanRight)
+    {
+        if (r[c] <CNT r[a])
+        {
+            assert(r[c] < r[a] && r[c] <= r[d]); // so r[c] is out
+            return medianIndex(r, a, b, d);
+        }
+        assert(r[a] <= r[c] && r[a] <= r[d]); // so r[a] is out
+    }
+    else
+    {
+        if (r[d] >=CNT r[a])
+        {
+            assert(r[d] >= r[c] && r[d] >= r[a]); // so r[d] is out
+            return medianIndex(r, a, b, c);
+        }
+        assert(r[a] > r[d] && r[a] > r[c]); // so r[a] is out
+    }
+    // Could return medianIndex(r, b, c, d) but we already know r[c] <= r[d]
+    if (r[b] <=CNT r[c]) return c;
+    if (r[b] >CNT r[d]) return d;
+    return b;
+}
+
+/**
 Tukey's Ninther: compute the median of r[_1], r[_2], r[_3], then the median of
 r[_4], r[_5], r[_6], then the median of r[_7], r[_8], r[_9], and then swap the
 median of those three medians into r[_5].
