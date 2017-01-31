@@ -1,18 +1,18 @@
 # Definitions pertanining to the project
 
-# Temporary directory for e.g. object files and generated binaries
-T = /tmp/MedianOfNinthers
-$(shell mkdir -p $T)
-# Directory for data that is generated but should not be discarded naively
+# $D is a directory for data that is generated but should not be discarded
+# naively. $T is a temporary directory for object files, generated binaries, and
+# intermediate results. $R is the directory where the final summary results are
+# kept.
 D = $(HOME)/data/median
-$(shell mkdir -p $D)
-# Directory where results are kept
 ifeq ($(DRAFT),1)
 R = results_draft
+T = /tmp/MedianOfNinthers_draft
 else
 R = results
+T = /tmp/MedianOfNinthers
 endif
-$(shell mkdir -p $R)
+$(shell mkdir -p $D $R $T)
 
 # Data sizes present in the paper
 ifeq ($(DRAFT),1)
@@ -36,7 +36,7 @@ ALGOS = nth_element rnd3pivot ninther median_of_ninthers bfprt_baseline
 # Data sets (synthetic)
 SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted
 # Benchmark files we're interested in
-MK_OUTFILES = MEASUREMENTS_$1 = $(foreach n,$(SIZES),$(foreach a,$(ALGOS),$D/$1_$n_$a.out))
+MK_OUTFILES = MEASUREMENTS_$1 = $(foreach n,$(SIZES),$(foreach a,$(ALGOS),$T/$1_$n_$a.out))
 $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call MK_OUTFILES,$d)))
 
 # Data sets (Google Books)
@@ -46,7 +46,7 @@ GBOOKS_CORPORA = $(foreach l,$(GBOOKS_LANGS),googlebooks-$l-all-1gram-20120701)
 
 # All measurement output files
 MEASUREMENT_OUTPUTS = $(foreach x,$(SYNTHETIC_DATASETS),$(MEASUREMENTS_$x)) \
-  $(foreach x,$(call XPROD,$(ALGOS),_,$(GBOOKS_CORPORA)),$D/$x_freq.out)
+  $(foreach x,$(call XPROD,$(ALGOS),_,$(GBOOKS_CORPORA)),$T/$x_freq.out)
 
 # Results files will be included in the paper. Change this to affect what
 # experiments are run.
@@ -57,13 +57,10 @@ RESULTS = $(addprefix $R/,$(SYNTHETIC_DATASETS) gbooks_freq)
 all: $(RESULTS)
 
 clean:
-	rm -rf $T/
-
-clean-measurements:
-	rm -rf $T/ $D/*.out $D/*.stats $R $D/*.tmp
+	rm -rf $D/*.tmp $R/* $T/
 
 pristine:
-	rm -rf $T/ $D/
+	rm -rf $D/ $R/* $T/
 
 # Don't delete intermediary files
 .SECONDARY:
@@ -100,14 +97,14 @@ $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call GENERATE_DATA,$d)))
 .PHONY: measurements $(SYNTHETIC_DATASETS) $(GBOOKS_CORPORA)
 measurements: $(SYNTHETIC_DATASETS) $(GBOOKS_CORPORA)
 
-gbooks: $(foreach x,$(call XPROD,$(GBOOKS_CORPORA),_freq_,$(ALGOS)),$D/$x.out)
+gbooks: $(foreach x,$(call XPROD,$(GBOOKS_CORPORA),_freq_,$(ALGOS)),$T/$x.out)
 
 $(foreach d,$(SYNTHETIC_DATASETS),$(eval \
 $d: $(MEASUREMENTS_$d);\
 ))
 
 define MAKE_MEASUREMENT
-$D/%_$1.out: $T/$1 $D/%.dat
+$T/%_$1.out: $T/$1 $D/%.dat
 	$$^ >$$@.tmp 2>$$@.stats
 	mv $$@.tmp $$@
 $T/$1: src/$1.cpp $(CXX_CODE)
@@ -122,14 +119,14 @@ $(foreach a,$(ALGOS),$(eval $(call MAKE_MEASUREMENT,$a)))
 
 $R/gbooks_freq: gbooks
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$D/googlebooks-$l-all-1gram-20120701_freq_$a.out) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.out) >>$@.tmp &&) true
 	mv $@.tmp $@
 
 define MAKE_RESULT_FILE
 $R/$1: $$(MEASUREMENTS_$1)
 	echo $$^
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$D/$1_$$n_$$a.out) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.out) >>$$@.tmp &&) true
 	mv $$@.tmp $$@
 endef
 
