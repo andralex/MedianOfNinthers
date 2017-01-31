@@ -31,7 +31,7 @@ XPROD3 = $(call XPROD,$1,$2,$(call XPROD,$3,$4,$5))
 CXX_CODE = $(addprefix src/,main.cpp common.h timer.h)
 
 # Algorithms
-ALGOS = nth_element rnd3pivot ninther median_of_ninthers bfprt_baseline
+ALGOS = nth_element median_of_ninthers rnd3pivot ninther bfprt_baseline
 ALGOS = nth_element median_of_ninthers
 
 # Data sets (synthetic)
@@ -58,7 +58,7 @@ RESULTS = $(addprefix $R/,$(SYNTHETIC_DATASETS) gbooks_freq)
 all: $(RESULTS)
 
 clean:
-	rm -rf $D/*.tmp $R/* $T/
+	rm -rf $D/*.tmp $R*/* $T*/
 
 pristine:
 	rm -rf $D/ $R/* $T/
