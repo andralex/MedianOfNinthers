@@ -19,7 +19,7 @@ ifeq ($(DRAFT),1)
 SIZES = 10000 31620 100000 316220 1000000 3162280
 CFLAGS = -O4 -DCOUNT_SWAPS -DCOUNT_WASTED_SWAPS -DCOUNT_COMPARISONS
 else
-SIZES = 10000 31620 100000 316220 1000000 3162280 10000000 31622800 100000000
+SIZES = 10000 31620 100000 316220 1000000 3162280
 CFLAGS = -O4 -DNDEBUG
 endif
 
@@ -32,6 +32,7 @@ CXX_CODE = $(addprefix src/,main.cpp common.h timer.h)
 
 # Algorithms
 ALGOS = nth_element rnd3pivot ninther median_of_ninthers bfprt_baseline
+ALGOS = nth_element median_of_ninthers
 
 # Data sets (synthetic)
 SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted

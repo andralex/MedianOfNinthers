@@ -13,6 +13,59 @@ template <class T>
 static void adaptiveQuickselect(T* beg, size_t n, size_t length);
 
 /**
+Median of minima
+*/
+template <class T>
+static size_t medianOfMinima(T*const r, const size_t n, const size_t length)
+{
+    assert(length >= 2);
+    assert(n * 4 < length && n > 0);
+    const size_t subset = n * 2, computeMinOver = (length - subset) / subset;
+    assert(computeMinOver > 0);
+    for (size_t i = 0, j = subset; i < subset; ++i)
+    {
+        const auto limit = j + computeMinOver;
+        size_t minIndex = j;
+        for (++j; j < limit; ++j)
+            if (r[j] <CNT r[minIndex])
+                minIndex = j;
+        if (r[minIndex] <CNT r[i])
+            cswap(r[i], r[minIndex]);
+        assert(j < length || i + 1 == subset);
+    }
+    adaptiveQuickselect(r, n, subset);
+    return expandPartition(r, 0, n, subset, length);
+}
+
+/**
+Median of maxima
+*/
+template <class T>
+static size_t medianOfMaxima(T*const r, const size_t n, const size_t length)
+{
+    assert(length >= 2);
+    assert(n * 4 > length * 3 && n < length);
+    const size_t subset = (length - n) * 2,
+        subsetStart = length - subset,
+        computeMaxOver = subsetStart / subset;
+    assert(computeMaxOver > 0);
+    for (size_t i = subsetStart, j = i - computeMaxOver * subset;
+    i < length; ++i)
+    {
+        const auto limit = j + computeMaxOver;
+        size_t maxIndex = j;
+        for (++j; j < limit; ++j)
+            if (r[j] >CNT r[maxIndex])
+                maxIndex = j;
+        if (r[maxIndex] >CNT r[i])
+            cswap(r[i], r[maxIndex]);
+        assert(j != 0 || i + 1 == length);
+    }
+    adaptiveQuickselect(r + subsetStart, length - n, subset);
+    return expandPartition(r, subsetStart, n, length, length);
+}
+
+/**
 Median of minima for \Gamma = 2
 */
 template <class T>
@@ -158,13 +211,13 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
         size_t pivot;
         if (length <= 16)
             pivot = pivotPartition(r, n, length) - r;
-        else if (n * 16 <= length)
-            pivot = medianOfMinima8(r, n, length);
-        else if (n * 16 >= length * 15)
-            pivot = medianOfMaxima8(r, n, length);
-        else if (n * 4 <= length)
+        else if (n * 3 <= length)
+            pivot = medianOfMinima(r, n, length);
+        else if (n * 3 >= length * 2)
+            pivot = medianOfMaxima(r, n, length);
+        else if (n * 4 < length)
             pivot = medianOfMinima2(r, n, length);
-        else if (n * 4 >= length * 3)
+        else if (n * 4 > length * 3)
             pivot = medianOfMaxima2(r, n, length);
         else
             pivot = medianOfNinthers(r, length);
