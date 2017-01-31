@@ -105,8 +105,10 @@ $d: $(MEASUREMENTS_$d);\
 
 define MAKE_MEASUREMENT
 $T/%_$1.out: $T/$1 $D/%.dat
-	$$^ >$$@.tmp 2>$$@.stats
-	mv $$@.tmp $$@
+	$$^ >$$@.tmp
+	sed -n '/^milliseconds: /s/milliseconds: //p' $$@.tmp >$$@.tmp2
+	mv $$@.tmp $$@.stats
+	mv $$@.tmp2 $$@
 $T/$1: src/$1.cpp $(CXX_CODE)
 	$(CXX) $(CFLAGS) -std=c++14 -o $$@ $$(patsubst %.h,,$$^)
 endef
