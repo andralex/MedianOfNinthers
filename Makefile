@@ -31,7 +31,7 @@ XPROD3 = $(call XPROD,$1,$2,$(call XPROD,$3,$4,$5))
 CXX_CODE = $(addprefix src/,main.cpp common.h timer.h)
 
 # Algorithms
-ALGOS = nth_element rnd3pivot ninther median_of_ninthers bfprt_baseline
+ALGOS = nth_element median_of_ninthers rnd3pivot ninther bfprt_baseline
 
 # Data sets (synthetic)
 SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted
