@@ -19,7 +19,8 @@ template <class T>
 static size_t medianOfMinima(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 2);
-    assert(n * 4 < length && n > 0);
+    assert(n * 4 < length);
+    assert(n > 0);
     const size_t subset = n * 2, computeMinOver = (length - subset) / subset;
     assert(computeMinOver > 0);
     for (size_t i = 0, j = subset; i < subset; ++i)
@@ -211,13 +212,17 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
         size_t pivot;
         if (length <= 16)
             pivot = pivotPartition(r, n, length) - r;
-        else if (n * 3 <= length)
-            pivot = medianOfMinima(r, n, length);
-        else if (n * 3 >= length * 2)
-            pivot = medianOfMaxima(r, n, length);
-        else if (n * 4 < length)
+        // else if (n * 32 <= length)
+        //     pivot = medianOfMinima(r, n, length);
+        // else if (n * 32 >= length * 31)
+        //     pivot = medianOfMaxima(r, n, length);
+        else if (n * 16 <= length)
+            pivot = medianOfMinima8(r, n, length);
+        else if (n * 16 >= length * 15)
+            pivot = medianOfMaxima8(r, n, length);
+        else if (n * 4 <= length)
             pivot = medianOfMinima2(r, n, length);
-        else if (n * 4 > length * 3)
+        else if (n * 4 >= length * 3)
             pivot = medianOfMaxima2(r, n, length);
         else
             pivot = medianOfNinthers(r, length);
