@@ -80,17 +80,6 @@ int main(int argc, char** argv)
         }
         if (++i == epochs)
         {
-            fprintf(stderr, "size: %lu\nmedian: %g\n", dataLen, median);
-            if (reshuffle) fprintf(stderr, "shuffled: 1\n");
-#ifdef COUNT_COMPARISONS
-            fprintf(stderr, "comparisons: %lu\n", g_comparisons);
-#endif
-#ifdef COUNT_SWAPS
-            fprintf(stderr, "swaps: %lu\n", g_swaps);
-#endif
-#ifdef COUNT_WASTED_SWAPS
-            fprintf(stderr, "wasted_swaps: %lu\n", g_wastedSwaps);
-#endif
             break;
         }
         if (reshuffle)
@@ -106,5 +95,17 @@ int main(int argc, char** argv)
     sort(durations, durations + epochs);
     double sum = 0;
     for (size_t i = 0; i < epochs - 2; ++i) sum += durations[i];
-    printf("%g\n", sum / (epochs - 2));
+
+    printf("milliseconds: %g\n", sum / (epochs - 2));
+    printf("size: %lu\nmedian: %g\n", dataLen, median);
+    if (reshuffle) fprintf(stderr, "shuffled: 1\n");
+#ifdef COUNT_COMPARISONS
+    printf("comparisons: %lu\n", g_comparisons);
+#endif
+#ifdef COUNT_SWAPS
+    printf("swaps: %lu\n", g_swaps);
+#endif
+#ifdef COUNT_WASTED_SWAPS
+    printf("wasted_swaps: %lu\n", g_wastedSwaps);
+#endif
 }
