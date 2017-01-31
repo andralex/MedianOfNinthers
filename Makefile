@@ -57,7 +57,7 @@ RESULTS = $(addprefix $R/,$(SYNTHETIC_DATASETS) gbooks_freq)
 all: $(RESULTS)
 
 clean:
-	rm -rf $D/*.tmp $R/* $T/
+	rm -rf $D/*.tmp $R*/* $T*/
 
 pristine:
 	rm -rf $D/ $R/* $T/
