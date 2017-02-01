@@ -98,7 +98,7 @@ int main(int argc, char** argv)
 
     printf("milliseconds: %g\n", sum / (epochs - 2));
     printf("size: %lu\nmedian: %g\n", dataLen, median);
-    if (reshuffle) fprintf(stderr, "shuffled: 1\n");
+    if (reshuffle) printf("shuffled: 1\n");
 #ifdef COUNT_COMPARISONS
     printf("comparisons: %lu\n", g_comparisons);
 #endif
