@@ -37,13 +37,15 @@ template <class T>
 static size_t medianOfMaxima2(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 2);
-    const auto _2 = length / 2, lo = length - _2;
+    const auto _2 = length / 2;
+    const size_t sample = std::max(2 * (length - n - 1), _2 / 2);
+    const size_t lo = length - sample;
     assert(n >= lo);
     for (size_t i = lo; i < length; ++i)
     {
         if (r[i - _2] >CNT r[i]) cswap(r[i - _2], r[i]);
     }
-    adaptiveQuickselect(r + lo, n - lo, _2);
+    adaptiveQuickselect(r + lo, n - lo, sample);
     return expandPartition(r, lo, n, length, length);
 }
 
@@ -80,7 +82,8 @@ static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 8);
     const auto _8 = length / 8;
-    const auto lo = length - _8;
+    const size_t sample = std::max(2 * (length - n - 1), _8 / 2);
+    const size_t lo = length - sample;
     for (size_t i = lo, j = 0; i < length; ++i, j += 7)
     {
         auto a = r[j] >CNT r[j + 1] ? j : j + 1;
@@ -92,7 +95,7 @@ static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
         auto g = r[e] >CNT r[f] ? e : f;
         cswap(r[g], r[i]);
     }
-    adaptiveQuickselect(r + lo, n - lo, _8);
+    adaptiveQuickselect(r + lo, n - lo, sample);
     return expandPartition(r, lo, n, length, length);
 }
 
