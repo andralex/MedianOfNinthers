@@ -12,6 +12,8 @@ static size_t partitionImpl(T* beg, size_t length);
 template <class T>
 static void adaptiveQuickselect(T* beg, size_t n, size_t length);
 
+static const size_t extremaSampling = 2;
+
 /**
 Median of minima for \Gamma = 2
 */
@@ -20,7 +22,7 @@ static size_t medianOfMinima2(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 2);
     const auto _2 = length / 2;
-    const auto sample = std::max(2 * n, _2 / 2);
+    const auto sample = std::max(2 * n, _2 / extremaSampling);
     assert(n < _2);
     for (size_t i = 0; i < sample; ++i)
     {
@@ -38,7 +40,7 @@ static size_t medianOfMaxima2(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 2);
     const auto _2 = length / 2;
-    const size_t sample = std::max(2 * (length - n - 1), _2 / 2);
+    const size_t sample = std::max(2 * (length - n - 1), _2 / extremaSampling);
     const size_t lo = length - sample;
     assert(n >= lo);
     for (size_t i = lo; i < length; ++i)
@@ -57,7 +59,7 @@ static size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 8);
     const auto _8 = length / 8;
-    const auto sample = std::max(2 * n, _8 / 2);
+    const auto sample = std::max(2 * n, _8 / extremaSampling);
     assert(n < _8);
     for (size_t i = 0, j = _8; i < sample; ++i, j += 7)
     {
@@ -82,7 +84,7 @@ static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 8);
     const auto _8 = length / 8;
-    const size_t sample = std::max(2 * (length - n - 1), _8 / 2);
+    const size_t sample = std::max(2 * (length - n - 1), _8 / extremaSampling);
     const size_t lo = length - sample;
     for (size_t i = lo, j = 0; i < length; ++i, j += 7)
     {
