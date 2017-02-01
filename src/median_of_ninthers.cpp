@@ -20,13 +20,14 @@ static size_t medianOfMinima2(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 2);
     const auto _2 = length / 2;
+    const auto sample = std::max(2 * n, _2 / 2);
     assert(n < _2);
-    for (size_t i = 0; i < _2; ++i)
+    for (size_t i = 0; i < sample; ++i)
     {
         if (r[i + _2] <CNT r[i]) cswap(r[i], r[i + _2]);
     }
-    adaptiveQuickselect(r, n, _2);
-    return expandPartition(r, 0, n, _2, length);
+    adaptiveQuickselect(r, n, sample);
+    return expandPartition(r, 0, n, sample, length);
 }
 
 /**
@@ -54,8 +55,9 @@ static size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 8);
     const auto _8 = length / 8;
+    const auto sample = std::max(2 * n, _8 / 2);
     assert(n < _8);
-    for (size_t i = 0, j = _8; i < _8; ++i, j += 7)
+    for (size_t i = 0, j = _8; i < sample; ++i, j += 7)
     {
         auto a = r[i] <=CNT r[j] ? i : j;
         auto b = r[j + 1] <=CNT r[j + 2] ? j + 1 : j + 2;
@@ -66,8 +68,8 @@ static size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
         auto g = r[f] <CNT r[e] ? f : e;
         cswap(r[i], r[g]);
     }
-    adaptiveQuickselect(r, n, _8);
-    return expandPartition(r, 0, n, _8, length);
+    adaptiveQuickselect(r, n, sample);
+    return expandPartition(r, 0, n, sample, length);
 }
 
 /**
