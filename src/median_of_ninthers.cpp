@@ -79,9 +79,9 @@ template <class T>
 static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 8);
-    const auto _8 = length / 8, rem = length % 8, limit = _8 + rem;
+    const auto _8 = length / 8;
     const auto lo = length - _8;
-    for (size_t i = lo, j = rem; i < length; ++i, j += 7)
+    for (size_t i = lo, j = 0; i < length; ++i, j += 7)
     {
         auto a = r[j] >CNT r[j + 1] ? j : j + 1;
         auto b = r[j + 2] >CNT r[j + 3] ? j + 2 : j + 3;
