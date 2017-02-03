@@ -12,31 +12,21 @@ static size_t partitionImpl(T* beg, size_t length);
 template <class T>
 static void adaptiveQuickselect(T* beg, size_t n, size_t length);
 
+static const size_t medianOverExtrema = 128;
+
 /**
 Median of minima
 */
 template <class T>
 static size_t medianOfMinima(T*const r, const size_t n, const size_t length)
 {
-    // Only use a sample of 6 * n
-    // assert(n * 6 <= length);
-    // const size_t _2n = 2 * n, _4n = 4 * n;
-    // for (size_t i = _2n; i < _4n; ++i)
-    // {
-    //     const auto x = r[i] <=CNT r[i + _2n] ? i : i + _2n;
-    //     if (r[x] <CNT r[i - _2n]) cswap(r[x], r[i - _2n]);
-    // }
-    // adaptiveQuickselect(r, n, _2n);
-    // return expandPartition(r, 0, n, _2n, length);
-
     assert(length >= 2);
-    assert(n * 4 < length);
+    assert(n * 4 <= length);
     assert(n > 0);
-    const size_t subset = n * 2;
-    assert(subset < length);
-    size_t computeMinOver = (length - subset) / subset;
+    const size_t subset = n * 2,
+        computeMinOver = std::min((length - subset) / subset,
+            medianOverExtrema);
     assert(computeMinOver > 0);
-    if (computeMinOver > 4) computeMinOver /= 4;
     // fprintf(stderr, "n=%zu, length=%zu, computeMinOver=%zu\n",
     //     n, length, computeMinOver);
     for (size_t i = 0, j = subset; i < subset; ++i)
@@ -61,12 +51,12 @@ template <class T>
 static size_t medianOfMaxima(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 2);
-    assert(n * 4 > length * 3 && n < length);
+    assert(n * 4 >= length * 3 && n < length);
     const size_t subset = (length - n) * 2,
         subsetStart = length - subset,
-        computeMaxOver = subsetStart / subset;
+        computeMaxOver = std::min(subsetStart / subset, medianOverExtrema);
     assert(computeMaxOver > 0);
-    for (size_t i = subsetStart, j = i - computeMaxOver * subset;
+    for (size_t i = subsetStart, j = i - subset * computeMaxOver;
     i < length; ++i)
     {
         const auto limit = j + computeMaxOver;
@@ -147,9 +137,9 @@ template <class T>
 static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
 {
     assert(length >= 8);
-    const auto _8 = length / 8, rem = length % 8, limit = _8 + rem;
+    const auto _8 = length / 8;
     const auto lo = length - _8;
-    for (size_t i = lo, j = rem; i < length; ++i, j += 7)
+    for (size_t i = lo, j = 0; i < length; ++i, j += 7)
     {
         auto a = r[j] >CNT r[j + 1] ? j : j + 1;
         auto b = r[j + 2] >CNT r[j + 3] ? j + 2 : j + 3;
@@ -228,18 +218,18 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
         size_t pivot;
         if (length <= 16)
             pivot = pivotPartition(r, n, length) - r;
-        else if (n * 6 < length)
+        else if (n * 4 < length)
             pivot = medianOfMinima(r, n, length);
-        // else if (n * 64 >= length * 63)
-        //     pivot = medianOfMaxima(r, n, length);
-        else if (n * 16 <= length)
-            pivot = medianOfMinima8(r, n, length);
-        else if (n * 16 >= length * 15)
-            pivot = medianOfMaxima8(r, n, length);
-        else if (n * 4 <= length)
-            pivot = medianOfMinima2(r, n, length);
         else if (n * 4 >= length * 3)
-            pivot = medianOfMaxima2(r, n, length);
+            pivot = medianOfMaxima(r, n, length);
+        // else if (n * 16 <= length)
+        //     pivot = medianOfMinima8(r, n, length);
+        // else if (n * 16 >= length * 15)
+        //     pivot = medianOfMaxima8(r, n, length);
+        // else if (n * 4 <= length)
+        //     pivot = medianOfMinima2(r, n, length);
+        // else if (n * 4 >= length * 3)
+        //     pivot = medianOfMaxima2(r, n, length);
         else
             pivot = medianOfNinthers(r, length);
 

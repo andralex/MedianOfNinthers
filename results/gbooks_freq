@@ -1,7 +1,7 @@
-Corpus   nth_element   median_of_ninthers
-eng 62.3777	49.1786
-fre 25.5227	22.4648
-ger 40.8574	28.98
-ita 19.6141	14.564
-rus 33.7102	29.8093
-spa 25.6937	21.2736
+Corpus   median_of_ninthers_baseline   median_of_ninthers
+eng 49.8522	48.8944
+fre 22.5456	22.5234
+ger 29.0338	29.968
+ita 14.2579	14.1642
+rus 29.819	29.9067
+spa 18.7079	18.992
