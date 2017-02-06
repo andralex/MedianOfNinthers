@@ -12,8 +12,6 @@ static size_t partitionImpl(T* beg, size_t length);
 template <class T>
 static void adaptiveQuickselect(T* beg, size_t n, size_t length);
 
-static const size_t medianOverExtrema = 128;
-
 /**
 Median of minima
 */
@@ -24,16 +22,13 @@ static size_t medianOfMinima(T*const r, const size_t n, const size_t length)
     assert(n * 4 <= length);
     assert(n > 0);
     const size_t subset = n * 2,
-        computeMinOver = std::min((length - subset) / subset,
-            medianOverExtrema);
+        computeMinOver = (length - subset) / subset;
     assert(computeMinOver > 0);
-    // fprintf(stderr, "n=%zu, length=%zu, computeMinOver=%zu\n",
-    //     n, length, computeMinOver);
     for (size_t i = 0, j = subset; i < subset; ++i)
     {
         const auto limit = j + computeMinOver;
         size_t minIndex = j;
-        for (++j; j < limit; ++j)
+        while (++j < limit)
             if (r[j] <CNT r[minIndex])
                 minIndex = j;
         if (r[minIndex] <CNT r[i])
@@ -54,14 +49,14 @@ static size_t medianOfMaxima(T*const r, const size_t n, const size_t length)
     assert(n * 4 >= length * 3 && n < length);
     const size_t subset = (length - n) * 2,
         subsetStart = length - subset,
-        computeMaxOver = std::min(subsetStart / subset, medianOverExtrema);
+        computeMaxOver = subsetStart / subset;
     assert(computeMaxOver > 0);
     for (size_t i = subsetStart, j = i - subset * computeMaxOver;
     i < length; ++i)
     {
         const auto limit = j + computeMaxOver;
         size_t maxIndex = j;
-        for (++j; j < limit; ++j)
+        while (++j < limit)
             if (r[j] >CNT r[maxIndex])
                 maxIndex = j;
         if (r[maxIndex] >CNT r[i])
@@ -70,88 +65,6 @@ static size_t medianOfMaxima(T*const r, const size_t n, const size_t length)
     }
     adaptiveQuickselect(r + subsetStart, length - n, subset);
     return expandPartition(r, subsetStart, n, length, length);
-}
-
-/**
-Median of minima for \Gamma = 2
-*/
-template <class T>
-static size_t medianOfMinima2(T*const r, const size_t n, const size_t length)
-{
-    assert(length >= 2);
-    const auto _2 = length / 2;
-    assert(n < _2);
-    for (size_t i = 0; i < _2; ++i)
-    {
-        if (r[i + _2] <CNT r[i]) cswap(r[i], r[i + _2]);
-    }
-    adaptiveQuickselect(r, n, _2);
-    return expandPartition(r, 0, n, _2, length);
-}
-
-/**
-Median of maxima for \Gamma = 2
-*/
-template <class T>
-static size_t medianOfMaxima2(T*const r, const size_t n, const size_t length)
-{
-    assert(length >= 2);
-    const auto _2 = length / 2, lo = length - _2;
-    assert(n >= lo);
-    for (size_t i = lo; i < length; ++i)
-    {
-        if (r[i - _2] >CNT r[i]) cswap(r[i - _2], r[i]);
-    }
-    adaptiveQuickselect(r + lo, n - lo, _2);
-    return expandPartition(r, lo, n, length, length);
-}
-
-/**
-Median of minima for \Gamma = 8
-*/
-template <class T>
-static size_t medianOfMinima8(T*const r, const size_t n, const size_t length)
-{
-    assert(length >= 8);
-    const auto _8 = length / 8;
-    assert(n < _8);
-    for (size_t i = 0, j = _8; i < _8; ++i, j += 7)
-    {
-        auto a = r[i] <=CNT r[j] ? i : j;
-        auto b = r[j + 1] <=CNT r[j + 2] ? j + 1 : j + 2;
-        auto c = r[j + 3] <=CNT r[j + 4] ? j + 3 : j + 4;
-        auto d = r[j + 5] <=CNT r[j + 6] ? j + 5 : j + 6;
-        auto e = r[b] <CNT r[a] ? b : a;
-        auto f = r[d] <CNT r[c] ? d : c;
-        auto g = r[f] <CNT r[e] ? f : e;
-        cswap(r[i], r[g]);
-    }
-    adaptiveQuickselect(r, n, _8);
-    return expandPartition(r, 0, n, _8, length);
-}
-
-/**
-Median of maxima for \Gamma = 8
-*/
-template <class T>
-static size_t medianOfMaxima8(T*const r, const size_t n, const size_t length)
-{
-    assert(length >= 8);
-    const auto _8 = length / 8;
-    const auto lo = length - _8;
-    for (size_t i = lo, j = 0; i < length; ++i, j += 7)
-    {
-        auto a = r[j] >CNT r[j + 1] ? j : j + 1;
-        auto b = r[j + 2] >CNT r[j + 3] ? j + 2 : j + 3;
-        auto c = r[j + 4] >CNT r[j + 5] ? j + 4 : j + 5;
-        auto d = r[j + 6] >CNT r[i] ? j + 6 : i;
-        auto e = r[a] >CNT r[b] ? a : b;
-        auto f = r[c] >CNT r[d] ? c : d;
-        auto g = r[e] >CNT r[f] ? e : f;
-        cswap(r[g], r[i]);
-    }
-    adaptiveQuickselect(r + lo, n - lo, _8);
-    return expandPartition(r, lo, n, length, length);
 }
 
 /**
@@ -218,18 +131,10 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
         size_t pivot;
         if (length <= 16)
             pivot = pivotPartition(r, n, length) - r;
-        else if (n * 4 < length)
+        else if (n * 4 <= length)
             pivot = medianOfMinima(r, n, length);
         else if (n * 4 >= length * 3)
             pivot = medianOfMaxima(r, n, length);
-        // else if (n * 16 <= length)
-        //     pivot = medianOfMinima8(r, n, length);
-        // else if (n * 16 >= length * 15)
-        //     pivot = medianOfMaxima8(r, n, length);
-        // else if (n * 4 <= length)
-        //     pivot = medianOfMinima2(r, n, length);
-        // else if (n * 4 >= length * 3)
-        //     pivot = medianOfMaxima2(r, n, length);
         else
             pivot = medianOfNinthers(r, length);
 
