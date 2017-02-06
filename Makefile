@@ -32,7 +32,6 @@ CXX_CODE = $(addprefix src/,main.cpp common.h timer.h)
 
 # Algorithms
 ALGOS = nth_element median_of_ninthers rnd3pivot ninther bfprt_baseline
-ALGOS = nth_element median_of_ninthers
 
 # Data sets (synthetic)
 SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted
