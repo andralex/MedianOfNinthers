@@ -5,23 +5,16 @@
 # intermediate results. $R is the directory where the final summary results are
 # kept.
 D = $(HOME)/data/median
-ifeq ($(DRAFT),1)
-R = results_draft
-T = /tmp/MedianOfNinthers_draft
-else
 R = results
 T = /tmp/MedianOfNinthers
-endif
 $(shell mkdir -p $D $R $T)
 
 # Data sizes present in the paper
-ifeq ($(DRAFT),1)
-SIZES = 10000 31620 100000 316220 1000000 3162280
-CFLAGS = -O4 -DCOUNT_SWAPS -DCOUNT_WASTED_SWAPS -DCOUNT_COMPARISONS
-else
 SIZES = 10000 31620 100000 316220 1000000 3162280 10000000
-CFLAGS = -O4 -DNDEBUG
-endif
+
+# Compiler flags for instrumented and fast build
+CFLAGS_INSTRUMENTED = -std=c++14 -O4 -DCOUNT_SWAPS -DCOUNT_WASTED_SWAPS -DCOUNT_COMPARISONS
+CFLAGS = -std=c++14 -O4 -DNDEBUG -DMEASURE_TIME
 
 # Utils
 XPROD = $(foreach a,$1,$(foreach b,$3,$a$2$b))
@@ -104,13 +97,20 @@ $d: $(MEASUREMENTS_$d);\
 ))
 
 define MAKE_MEASUREMENT
-$T/%_$1.out: $T/$1 $D/%.dat
-	$$^ >$$@.tmp
-	sed -n '/^milliseconds: /s/milliseconds: //p' $$@.tmp >$$@.tmp2
+$T/%_$1.out: $T/$1 $T/$1_instrumented $D/%.dat
+	$T/$1 $D/$$*.dat >$$@.tmp
+	$T/$1_instrumented $D/$$*.dat >>$$@.tmp
 	mv $$@.tmp $$@.stats
-	mv $$@.tmp2 $$@
+	sed -n '/^milliseconds: /s/milliseconds: //p' $$@.stats >$$@.tmp
+	mv $$@.tmp $$@
+	sed -n '/^comparisons: /s/comparisons: //p' $$@.stats >$$@.tmp
+	mv $$@.tmp $$@.comps
+	sed -n '/^swaps: /s/swaps: //p' $$@.stats >$$@.tmp
+	mv $$@.tmp $$@.swaps
 $T/$1: src/$1.cpp $(CXX_CODE)
-	$(CXX) $(CFLAGS) -std=c++14 -o $$@ $$(patsubst %.h,,$$^)
+	$(CXX) $(CFLAGS) -o $$@ $$(patsubst %.h,,$$^)
+$T/$1_instrumented: src/$1.cpp $(CXX_CODE)
+	$(CXX) $(CFLAGS_INSTRUMENTED) -o $$@ $$(patsubst %.h,,$$^)
 endef
 
 $(foreach a,$(ALGOS),$(eval $(call MAKE_MEASUREMENT,$a)))
@@ -126,10 +126,15 @@ $R/gbooks_freq: gbooks
 
 define MAKE_RESULT_FILE
 $R/$1: $$(MEASUREMENTS_$1)
-	echo $$^
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
 	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.out) >>$$@.tmp &&) true
 	mv $$@.tmp $$@
+	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.out.comps) >>$$@.tmp &&) true
+	mv $$@.tmp $$@.comps
+	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.out.swaps) >>$$@.tmp &&) true
+	mv $$@.tmp $$@.swaps
 endef
 
 $(foreach a,$(SYNTHETIC_DATASETS),$(eval $(call MAKE_RESULT_FILE,$a)))

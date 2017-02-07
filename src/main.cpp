@@ -13,7 +13,6 @@
 using namespace std;
 
 extern void (*computeSelection)(double*, double*, double*);
-const size_t epochs = 21;
 #ifdef COUNT_SWAPS
 unsigned long g_swaps = 0;
 #endif
@@ -27,8 +26,18 @@ unsigned long g_comparisons = 0;
 int main(int argc, char** argv)
 {
     if (argc != 2) return 1;
-    // Is this file random? If so, we shoulr reshuffle after each run
-    const bool reshuffle = strstr(argv[1], "random") != nullptr;
+
+    // Is this file random? If so, we shoulr randomInput after each run
+    const bool randomInput = strstr(argv[1], "random") != nullptr;
+
+    // Figure out how many epochs we need
+#ifdef MEASURE_TIME
+    const size_t epochs = 21;
+    const size_t outlierEpochs = 2;
+#else
+    const size_t epochs = randomInput ? 21 : 1;
+    const size_t outlierEpochs = randomInput ? 2 : 0;
+#endif
 
     // Load data from input file
     struct stat stat_buf;
@@ -41,9 +50,9 @@ int main(int argc, char** argv)
     if (fread(data, sizeof(double), dataLen, f) != dataLen) return 5;
     if (fclose(f) != 0) return 6;
 
-    // The fraction we're searching for
+    // The fraction we're searching for (2 for median)
     const size_t frac = 2;
-    // The statistic order we're looking for
+    // The order statistic we're looking for
     size_t index = dataLen / frac;
 
     std::random_device rd;
@@ -65,11 +74,13 @@ int main(int argc, char** argv)
 #ifdef COUNT_COMPARISONS
         g_comparisons = 0;
 #endif
+
         //////////////////// TIMING {
         Timer t;
         (*computeSelection)(b, b + index, b + dataLen);
         durations[i] = t.elapsed();
         //////////////////// } TIMING
+
         if (median == 0)
         {
             median = v[index];
@@ -82,7 +93,7 @@ int main(int argc, char** argv)
         {
             break;
         }
-        if (reshuffle)
+        if (randomInput)
             shuffle(data, data + dataLen, g);
     }
 
@@ -94,11 +105,13 @@ int main(int argc, char** argv)
     // Print results
     sort(durations, durations + epochs);
     double sum = 0;
-    for (size_t i = 0; i < epochs - 2; ++i) sum += durations[i];
+    for (size_t i = 0; i < epochs - outlierEpochs; ++i) sum += durations[i];
 
-    printf("milliseconds: %g\n", sum / (epochs - 2));
+#ifdef MEASURE_TIME
+    printf("milliseconds: %g\n", sum / (epochs - outlierEpochs));
+#endif
     printf("size: %lu\nmedian: %g\n", dataLen, median);
-    if (reshuffle) printf("shuffled: 1\n");
+    if (randomInput) printf("shuffled: 1\n");
 #ifdef COUNT_COMPARISONS
     printf("comparisons: %lu\n", g_comparisons);
 #endif
