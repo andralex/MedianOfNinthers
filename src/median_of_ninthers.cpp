@@ -131,9 +131,9 @@ static void adaptiveQuickselect(T* r, size_t n, size_t length)
         size_t pivot;
         if (length <= 16)
             pivot = pivotPartition(r, n, length) - r;
-        else if (n * 4 <= length)
+        else if (n * 6 <= length)
             pivot = medianOfMinima(r, n, length);
-        else if (n * 4 >= length * 3)
+        else if (n * 6 >= length * 5)
             pivot = medianOfMaxima(r, n, length);
         else
             pivot = medianOfNinthers(r, length);
