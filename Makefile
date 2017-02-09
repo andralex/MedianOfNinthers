@@ -29,7 +29,7 @@ ALGOS = nth_element median_of_ninthers rnd3pivot ninther bfprt_baseline
 # Data sets (synthetic)
 SYNTHETIC_DATASETS = m3killer organpipe random random01 rotated sorted
 # Benchmark files we're interested in
-MK_OUTFILES = MEASUREMENTS_$1 = $(foreach n,$(SIZES),$(foreach a,$(ALGOS),$T/$1_$n_$a.out))
+MK_OUTFILES = MEASUREMENTS_$1 = $(foreach n,$(SIZES),$(foreach a,$(ALGOS),$T/$1_$n_$a.time))
 $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call MK_OUTFILES,$d)))
 
 # Data sets (Google Books)
@@ -39,7 +39,7 @@ GBOOKS_CORPORA = $(foreach l,$(GBOOKS_LANGS),googlebooks-$l-all-1gram-20120701)
 
 # All measurement output files
 MEASUREMENT_OUTPUTS = $(foreach x,$(SYNTHETIC_DATASETS),$(MEASUREMENTS_$x)) \
-  $(foreach x,$(call XPROD,$(ALGOS),_,$(GBOOKS_CORPORA)),$T/$x_freq.out)
+  $(foreach x,$(call XPROD,$(ALGOS),_,$(GBOOKS_CORPORA)),$T/$x_freq.time)
 
 # Results files will be included in the paper. Change this to affect what
 # experiments are run.
@@ -90,23 +90,25 @@ $(foreach d,$(SYNTHETIC_DATASETS),$(eval $(call GENERATE_DATA,$d)))
 .PHONY: measurements $(SYNTHETIC_DATASETS) $(GBOOKS_CORPORA)
 measurements: $(SYNTHETIC_DATASETS) $(GBOOKS_CORPORA)
 
-gbooks: $(foreach x,$(call XPROD,$(GBOOKS_CORPORA),_freq_,$(ALGOS)),$T/$x.out)
+gbooks: $(foreach x,$(call XPROD,$(GBOOKS_CORPORA),_freq_,$(ALGOS)),$T/$x.time)
 
 $(foreach d,$(SYNTHETIC_DATASETS),$(eval \
 $d: $(MEASUREMENTS_$d);\
 ))
 
 define MAKE_MEASUREMENT
-$T/%_$1.out: $T/$1 $T/$1_instrumented $D/%.dat
-	$T/$1 $D/$$*.dat >$$@.tmp
-	$T/$1_instrumented $D/$$*.dat >>$$@.tmp
-	mv $$@.tmp $$@.stats
-	sed -n '/^milliseconds: /s/milliseconds: //p' $$@.stats >$$@.tmp
-	mv $$@.tmp $$@
-	sed -n '/^comparisons: /s/comparisons: //p' $$@.stats >$$@.tmp
-	mv $$@.tmp $$@.comps
-	sed -n '/^swaps: /s/swaps: //p' $$@.stats >$$@.tmp
-	mv $$@.tmp $$@.swaps
+$T/%_$1.time: $T/$1 $T/$1_instrumented $D/%.dat
+	$T/$1 $D/$$*.dat >$T/$$*_$1.tmp
+	$T/$1_instrumented $D/$$*.dat >>$T/$$*_$1.tmp
+	mv $T/$$*_$1.tmp $T/$$*_$1.stats
+	sed -n '/^milliseconds: /s/milliseconds: //p' $T/$$*_$1.stats >$T/$$*_$1.tmp
+	mv $T/$$*_$1.tmp $$@
+	sed -n '/^rsd: /s/rsd: //p' $T/$$*_$1.stats >$T/$$*_$1.tmp
+	mv $T/$$*_$1.tmp $T/$$*_$1.rsd
+	sed -n '/^comparisons: /s/comparisons: //p' $T/$$*_$1.stats >$T/$$*_$1.tmp
+	mv $T/$$*_$1.tmp $T/$$*_$1.comps
+	sed -n '/^swaps: /s/swaps: //p' $T/$$*_$1.stats >$T/$$*_$1.tmp
+	mv $T/$$*_$1.tmp $T/$$*_$1.swaps
 $T/$1: src/$1.cpp $(CXX_CODE)
 	$(CXX) $(CFLAGS) -o $$@ $$(patsubst %.h,,$$^)
 $T/$1_instrumented: src/$1.cpp $(CXX_CODE)
@@ -121,25 +123,34 @@ $(foreach a,$(ALGOS),$(eval $(call MAKE_MEASUREMENT,$a)))
 
 $R/gbooks_freq: gbooks
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.out) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.time) >>$@.tmp &&) true
 	mv $@.tmp $@
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.out.comps) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.rsd) >>$@.tmp &&) true
+	mv $@.tmp $@.rsd
+	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.comps) >>$@.tmp &&) true
 	mv $@.tmp $@.comps
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.out.swaps) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.swaps) >>$@.tmp &&) true
 	mv $@.tmp $@.swaps
 
 define MAKE_RESULT_FILE
 $R/$1: $$(MEASUREMENTS_$1)
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.out) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.time) >>$$@.tmp &&) true
 	mv $$@.tmp $$@
+# Relative Standard Deviation
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.out.comps) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.rsd) >>$$@.tmp &&) true
+	mv $$@.tmp $$@.rsd
+# Comparisons
+	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.comps) >>$$@.tmp &&) true
 	mv $$@.tmp $$@.comps
+# Swaps
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.out.swaps) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.swaps) >>$$@.tmp &&) true
 	mv $$@.tmp $$@.swaps
 endef
 
