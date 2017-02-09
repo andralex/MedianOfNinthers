@@ -123,6 +123,12 @@ $R/gbooks_freq: gbooks
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
 	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.out) >>$@.tmp &&) true
 	mv $@.tmp $@
+	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.out.comps) >>$@.tmp &&) true
+	mv $@.tmp $@.comps
+	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
+	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.out.swaps) >>$@.tmp &&) true
+	mv $@.tmp $@.swaps
 
 define MAKE_RESULT_FILE
 $R/$1: $$(MEASUREMENTS_$1)

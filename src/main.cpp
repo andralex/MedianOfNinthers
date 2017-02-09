@@ -23,6 +23,19 @@ unsigned long g_wastedSwaps = 0;
 unsigned long g_comparisons = 0;
 #endif
 
+// Compute standard deviation (pass by value is intentional)
+double stddev(const double* b, double* e, double avg)
+{
+    const double size = e - b;
+    double result = 0;
+    for (; b != e; ++b)
+    {
+        auto x = *b - avg;
+        result += x * x;
+    }
+    return sqrt(result / size);
+}
+
 int main(int argc, char** argv)
 {
     if (argc != 2) return 1;
@@ -32,11 +45,11 @@ int main(int argc, char** argv)
 
     // Figure out how many epochs we need
 #ifdef MEASURE_TIME
-    const size_t epochs = 21;
+    const size_t epochs = 51;
     const size_t outlierEpochs = 2;
 #else
-    const size_t epochs = randomInput ? 21 : 1;
-    const size_t outlierEpochs = randomInput ? 2 : 0;
+    const size_t epochs = 1;
+    const size_t outlierEpochs = 0;
 #endif
 
     // Load data from input file
@@ -104,11 +117,20 @@ int main(int argc, char** argv)
 
     // Print results
     sort(durations, durations + epochs);
-    double sum = 0;
-    for (size_t i = 0; i < epochs - outlierEpochs; ++i) sum += durations[i];
+    double avg = 0;
+    for (size_t i = 0; i < epochs - outlierEpochs; ++i) avg += durations[i];
+    avg /= epochs - outlierEpochs;
 
 #ifdef MEASURE_TIME
-    printf("milliseconds: %g\n", sum / (epochs - outlierEpochs));
+    printf("times:");
+    for (size_t i = 0; i < epochs - outlierEpochs; ++i)
+    {
+        printf(" %g", durations[i]);
+    }
+    printf("\n");
+    printf("milliseconds: %g\n", avg);
+    printf("stddev: %g\n",
+        stddev(durations, durations + epochs - outlierEpochs, avg));
 #endif
     printf("size: %lu\nmedian: %g\n", dataLen, median);
     if (randomInput) printf("shuffled: 1\n");
