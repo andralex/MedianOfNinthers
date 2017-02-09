@@ -78,15 +78,6 @@ int main(int argc, char** argv)
     {
         vector<double> v {data, data + dataLen};
         auto b = &v[0];
-#ifdef COUNT_SWAPS
-        g_swaps = 0;
-#endif
-#ifdef COUNT_WASTED_SWAPS
-        g_wastedSwaps = 0;
-#endif
-#ifdef COUNT_COMPARISONS
-        g_comparisons = 0;
-#endif
 
         //////////////////// TIMING {
         Timer t;
@@ -135,12 +126,12 @@ int main(int argc, char** argv)
     printf("size: %lu\nmedian: %g\n", dataLen, median);
     if (randomInput) printf("shuffled: 1\n");
 #ifdef COUNT_COMPARISONS
-    printf("comparisons: %lu\n", g_comparisons);
+    printf("comparisons: %g\n", double(g_comparisons) / (epochs * dataLen));
 #endif
 #ifdef COUNT_SWAPS
-    printf("swaps: %lu\n", g_swaps);
+    printf("swaps: %g\n", double(g_swaps) / (epochs * dataLen));
 #endif
 #ifdef COUNT_WASTED_SWAPS
-    printf("wasted_swaps: %lu\n", g_wastedSwaps);
+    printf("wasted_swaps: %g\n", double(g_wastedSwaps) / (epochs * dataLen));
 #endif
 }
