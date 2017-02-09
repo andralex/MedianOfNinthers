@@ -352,11 +352,33 @@ template <class T>
 void ninther(T* r, size_t _1, size_t _2, size_t _3, size_t _4, size_t _5,
     size_t _6, size_t _7, size_t _8, size_t _9)
 {
-    cswap(r[_5], r[medianIndex(r,
-        medianIndex(r, _1, _2, _3),
-        medianIndex(r, _4, _5, _6),
-        medianIndex(r, _7, _8, _9))
-    ]);
+    _2 = medianIndex(r, _1, _2, _3);
+    _8 = medianIndex(r, _7, _8, _9);
+    if (r[_2] >CNT r[_8]) std::swap(_2, _8);
+    if (r[_4] >CNT r[_6]) std::swap(_4, _6);
+    // Here we know that r[_2] and r[_8] are the other two medians and that
+    // r[_2] <= r[_8]. We also know that r[_4] <= r[_6]
+    if (r[_5] <CNT r[_4])
+    {
+        // r[_4] is the median of r[_4], r[_5], r[_6]
+    }
+    else if (r[_5] >CNT r[_6])
+    {
+        // r[_6] is the median of r[_4], r[_5], r[_6]
+        _4 = _6;
+    }
+    else
+    {
+        // Here we know r[_5] is the median of r[_4], r[_5], r[_6]
+        if (r[_5] <CNT r[_2]) return cswap(r[_5], r[_2]);
+        if (r[_5] >CNT r[_8]) return cswap(r[_5], r[_8]);
+        // This is the only path that returns with no swap
+        return;
+    }
+    // Here we know r[_4] is the median of r[_4], r[_5], r[_6]
+    if (r[_4] <CNT r[_2]) _4 = _2;
+    else if (r[_4] >CNT r[_8]) _4 = _8;
+    cswap(r[_5], r[_4]);
 }
 
 /**
