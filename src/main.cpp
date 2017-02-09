@@ -23,8 +23,16 @@ unsigned long g_wastedSwaps = 0;
 unsigned long g_comparisons = 0;
 #endif
 
-// Compute standard deviation (pass by value is intentional)
-double stddev(const double* b, double* e, double avg)
+double avg(const double* b, const double*const e)
+{
+    double result = 0;
+    const double length = e - b;
+    for (; b < e; ++b) result += *b;
+    return result / length;
+}
+
+// Compute standard deviation
+double stddev(const double* b, const double* e, double avg)
 {
     const double size = e - b;
     double result = 0;
@@ -48,7 +56,7 @@ int main(int argc, char** argv)
     const size_t epochs = 51;
     const size_t outlierEpochs = 2;
 #else
-    const size_t epochs = 1;
+    const size_t epochs = randomInput ? 51 : 1;
     const size_t outlierEpochs = 0;
 #endif
 
@@ -74,8 +82,11 @@ int main(int argc, char** argv)
     double durations[epochs];
     double median = 0;
 
-    for (size_t i = 0; ; ++i)
+    for (size_t i = 0; i < epochs; ++i)
     {
+        if (randomInput && i > 0)
+            shuffle(data, data + dataLen, g);
+
         vector<double> v {data, data + dataLen};
         auto b = &v[0];
 
@@ -93,12 +104,6 @@ int main(int argc, char** argv)
         {
             if (median != v[index]) return 7;
         }
-        if (++i == epochs)
-        {
-            break;
-        }
-        if (randomInput)
-            shuffle(data, data + dataLen, g);
     }
 
     // Verify
@@ -108,20 +113,15 @@ int main(int argc, char** argv)
 
     // Print results
     sort(durations, durations + epochs);
-    double avg = 0;
-    for (size_t i = 0; i < epochs - outlierEpochs; ++i) avg += durations[i];
-    avg /= epochs - outlierEpochs;
 
 #ifdef MEASURE_TIME
-    printf("times:");
-    for (size_t i = 0; i < epochs - outlierEpochs; ++i)
-    {
-        printf(" %g", durations[i]);
-    }
-    printf("\n");
-    printf("milliseconds: %g\n", avg);
-    printf("stddev: %g\n",
-        stddev(durations, durations + epochs - outlierEpochs, avg));
+    const size_t experiments = epochs - outlierEpochs;
+    const double avg1 = avg(durations, durations + experiments);
+    printf("milliseconds: %g\n", avg1);
+    const double stddev1 = stddev(durations, durations + experiments, avg1);
+    printf("stddev: %g\n", stddev1);
+    // Relative standard deviation
+    printf("rsd: %g\n", stddev1 / avg1);
 #endif
     printf("size: %lu\nmedian: %g\n", dataLen, median);
     if (randomInput) printf("shuffled: 1\n");
