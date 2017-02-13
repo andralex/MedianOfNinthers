@@ -53,10 +53,10 @@ int main(int argc, char** argv)
 
     // Figure out how many epochs we need
 #ifdef MEASURE_TIME
-    const size_t epochs = 51;
+    const size_t epochs = 102;
     const size_t outlierEpochs = 2;
 #else
-    const size_t epochs = randomInput ? 51 : 1;
+    const size_t epochs = randomInput ? 100 : 1;
     const size_t outlierEpochs = 0;
 #endif
 
