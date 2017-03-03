@@ -155,3 +155,6 @@ $R/$1: $$(MEASUREMENTS_$1)
 endef
 
 $(foreach a,$(SYNTHETIC_DATASETS),$(eval $(call MAKE_RESULT_FILE,$a)))
+
+# Supplemental dependencies
+median_of_ninthers.cpp: median_of_ninthers.h
