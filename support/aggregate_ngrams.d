@@ -1,4 +1,4 @@
-#!/home/andrei/bin/rdmd
+#!/usr/bin/env rdmd
 
 void main(string[] args)
 {
