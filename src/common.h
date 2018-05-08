@@ -130,40 +130,40 @@ void partition4(T* r, size_t a, size_t b, size_t c, size_t d)
     {
         // In the median of 5 algorithm, consider r[e] infinite
         if (r[c] <CNT r[a]) {
-    		cswap(r[a], r[c]);
-    	} // a <= c
-    	if (r[d] <CNT r[b]) {
-    		cswap(r[b], r[d]);
-    	} // a <= c, b <= d
-    	if (r[d] <CNT r[c]) {
-    		cswap(r[c], r[d]); // a <= d, b <= c < d
-    		cswap(r[a], r[b]); // b <= d, a <= c < d
-    	} // a <= c <= d, b <= d
-		if (r[c] <CNT r[b]) { // a <= c <= d, c < b <= d
-			cswap(r[b], r[c]); // a <= b <= c <= d
-    	} // a <= b <= c <= d
+            cswap(r[a], r[c]);
+        } // a <= c
+        if (r[d] <CNT r[b]) {
+            cswap(r[b], r[d]);
+        } // a <= c, b <= d
+        if (r[d] <CNT r[c]) {
+            cswap(r[c], r[d]); // a <= d, b <= c < d
+            cswap(r[a], r[b]); // b <= d, a <= c < d
+        } // a <= c <= d, b <= d
+        if (r[c] <CNT r[b]) { // a <= c <= d, c < b <= d
+            cswap(r[b], r[c]); // a <= b <= c <= d
+        } // a <= b <= c <= d
         assert(r[a] <= r[c] && r[b] <= r[c] && r[c] <= r[d]);
     }
     else
     {
         // In the median of 5 algorithm consider r[a] infinitely small, then
         // change b->a. c->b, d->c, e->d
-    	if (r[c] <CNT r[a]) {
-    		cswap(r[a], r[c]);
-    	}
-    	if (r[c] <CNT r[b]) {
-    		cswap(r[b], r[c]);
-    	}
-    	if (r[d] <CNT r[a]) {
-    		cswap(r[a], r[d]);
-    	}
-    	if (r[d] <CNT r[b]) {
-    		cswap(r[b], r[d]);
-    	} else {
-    		if (r[b] <CNT r[a]) {
-    			cswap(r[a], r[b]);
-    		}
-    	}
+        if (r[c] <CNT r[a]) {
+            cswap(r[a], r[c]);
+        }
+        if (r[c] <CNT r[b]) {
+            cswap(r[b], r[c]);
+        }
+        if (r[d] <CNT r[a]) {
+            cswap(r[a], r[d]);
+        }
+        if (r[d] <CNT r[b]) {
+            cswap(r[b], r[d]);
+        } else {
+            if (r[b] <CNT r[a]) {
+                cswap(r[a], r[b]);
+            }
+        }
         assert(r[a] <= r[b] && r[b] <= r[c] && r[b] <= r[d]);
     }
 }
@@ -178,28 +178,28 @@ void partition5(T* r, size_t a, size_t b, size_t c, size_t d, size_t e)
     assert(a != b && a != c && a != d && a != e && b != c && b != d && b != e
         && c != d && c != e && d != e);
     if (r[c] <CNT r[a]) {
-		cswap(r[a], r[c]);
-	}
-	if (r[d] <CNT r[b]) {
-		cswap(r[b], r[d]);
-	}
-	if (r[d] <CNT r[c]) {
-		cswap(r[c], r[d]);
-		cswap(r[a], r[b]);
-	}
-	if (r[e] <CNT r[b]) {
-		cswap(r[b], r[e]);
-	}
-	if (r[e] <CNT r[c]) {
-		cswap(r[c], r[e]);
-		if (r[c] <CNT r[a]) {
-			cswap(r[a], r[c]);
-		}
-	} else {
-		if (r[c] <CNT r[b]) {
-			cswap(r[b], r[c]);
-		}
-	}
+        cswap(r[a], r[c]);
+    }
+    if (r[d] <CNT r[b]) {
+        cswap(r[b], r[d]);
+    }
+    if (r[d] <CNT r[c]) {
+        cswap(r[c], r[d]);
+        cswap(r[a], r[b]);
+    }
+    if (r[e] <CNT r[b]) {
+        cswap(r[b], r[e]);
+    }
+    if (r[e] <CNT r[c]) {
+        cswap(r[c], r[e]);
+        if (r[c] <CNT r[a]) {
+            cswap(r[a], r[c]);
+        }
+    } else {
+        if (r[c] <CNT r[b]) {
+            cswap(r[b], r[c]);
+        }
+    }
     assert(r[a] <= r[c] && r[b] <= r[c] && r[c] <= r[d] && r[c] <= r[e]);
 }
 
