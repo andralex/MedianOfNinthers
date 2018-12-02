@@ -1,4 +1,4 @@
-This repository contains the implementation and benchmarks for the paper ["Fast Deterministic Selection"](https://arxiv.org/abs/1606.00484).
+This repository contains the implementation and benchmarks for the paper ["Fast Deterministic Selection"](https://erdani.com/research/sea2017.pdf).
 
 # Prerequisites
 
