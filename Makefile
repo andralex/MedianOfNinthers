@@ -43,7 +43,8 @@ MEASUREMENT_OUTPUTS = $(foreach x,$(SYNTHETIC_DATASETS),$(MEASUREMENTS_$x)) \
 
 # Results files will be included in the paper. Change this to affect what
 # experiments are run.
-RESULTS = $(addprefix $R/,$(SYNTHETIC_DATASETS) gbooks_freq)
+DATASETS = $(SYNTHETIC_DATASETS) gbooks_freq
+RESULTS = $(addprefix $R/,$(DATASETS))
 
 ###############################################################################
 
@@ -107,6 +108,8 @@ $T/%_$1.time: $T/$1 $T/$1_instrumented $D/%.dat
 	mv $T/$$*_$1.tmp $T/$$*_$1.rsd
 	sed -n '/^comparisons: /s/comparisons: //p' $T/$$*_$1.stats >$T/$$*_$1.tmp
 	mv $T/$$*_$1.tmp $T/$$*_$1.comps
+	sed -n '/^max_comparisons: /s/max_comparisons: //p' $T/$$*_$1.stats >$T/$$*_$1.tmp
+	mv $T/$$*_$1.tmp $T/$$*_$1.max_comps
 	sed -n '/^swaps: /s/swaps: //p' $T/$$*_$1.stats >$T/$$*_$1.tmp
 	mv $T/$$*_$1.tmp $T/$$*_$1.swaps
 $T/$1: src/$1.cpp $(CXX_CODE)
@@ -148,6 +151,10 @@ $R/$1: $$(MEASUREMENTS_$1)
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
 	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.comps) >>$$@.tmp &&) true
 	mv $$@.tmp $$@.comps
+# Worst-case Comparisons
+	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
+	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.max_comps) >>$$@.tmp &&) true
+	mv $$@.tmp $$@.max_comps
 # Swaps
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
 	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.swaps) >>$$@.tmp &&) true

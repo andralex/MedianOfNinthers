@@ -48,7 +48,7 @@ int main(int argc, char** argv)
 {
     if (argc != 2) return 1;
 
-    // Is this file random? If so, we shoulr randomInput after each run
+    // Is this file random? If so, we should randomInput after each run
     const bool randomInput = strstr(argv[1], "random") != nullptr;
 
     // Figure out how many epochs we need
@@ -81,6 +81,9 @@ int main(int argc, char** argv)
 
     double durations[epochs];
     double median = 0;
+#ifdef COUNT_COMPARISONS
+    double maxComparisons = 0;
+#endif
 
     for (size_t i = 0; i < epochs; ++i)
     {
@@ -90,12 +93,17 @@ int main(int argc, char** argv)
         vector<double> v {data, data + dataLen};
         auto b = &v[0];
 
+        #ifdef COUNT_COMPARISONS
+            const double tally = g_comparisons;
+        #endif
+
         //////////////////// TIMING {
         Timer t;
         (*computeSelection)(b, b + index, b + dataLen);
         durations[i] = t.elapsed();
         //////////////////// } TIMING
 
+        // Verify consistency
         if (median == 0)
         {
             median = v[index];
@@ -104,6 +112,10 @@ int main(int argc, char** argv)
         {
             if (median != v[index]) return 7;
         }
+
+#ifdef COUNT_COMPARISONS
+        maxComparisons = max(g_comparisons - tally, maxComparisons);
+#endif
     }
 
     // Verify
@@ -127,6 +139,8 @@ int main(int argc, char** argv)
     if (randomInput) printf("shuffled: 1\n");
 #ifdef COUNT_COMPARISONS
     printf("comparisons: %g\n", double(g_comparisons) / (epochs * dataLen));
+    printf("max_comparisons: %g\n",
+        double(maxComparisons) / dataLen);
 #endif
 #ifdef COUNT_SWAPS
     printf("swaps: %g\n", double(g_swaps) / (epochs * dataLen));
