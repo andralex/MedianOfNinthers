@@ -56,10 +56,14 @@ namespace std
 
 #include <algorithm>
 #ifndef _GLIBCXX_ALGORITHM
-#error Portability error, expecting <algorithm> to define _GLIBCXX_ALGORITHM
+#ifndef _LIBCPP_ALGORITHM
+#error Portability error, expecting <algorithm> to define _GLIBCXX_ALGORITHM or _LIBCPP_ALGORITHM
+#endif
 #endif
 
 #include <utility>
 #ifndef _GLIBCXX_UTILITY
-#error Portability error, expecting <utility> to define _GLIBCXX_UTILITY
+#ifndef _LIBCPP_UTILITY
+#error Portability error, expecting <utility> to define _GLIBCXX_UTILITY or _LIBCPP_UTILITY
+#endif
 #endif
