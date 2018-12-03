@@ -126,38 +126,38 @@ $(foreach a,$(ALGOS),$(eval $(call MAKE_MEASUREMENT,$a)))
 
 $R/gbooks_freq: gbooks
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.time) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),printf "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.time) >>$@.tmp &&) true
 	mv $@.tmp $@
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.rsd) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),printf "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.rsd) >>$@.tmp &&) true
 	mv $@.tmp $@.rsd
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.comps) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),printf "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.comps) >>$@.tmp &&) true
 	mv $@.tmp $@.comps
 	echo "Corpus" $(foreach a,$(ALGOS), "  $a") >$@.tmp
-	$(foreach l,$(GBOOKS_LANGS),echo -n "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.swaps) >>$@.tmp &&) true
+	$(foreach l,$(GBOOKS_LANGS),printf "$l " >>$@.tmp && paste $(foreach a,$(ALGOS),$T/googlebooks-$l-all-1gram-20120701_freq_$a.swaps) >>$@.tmp &&) true
 	mv $@.tmp $@.swaps
 
 define MAKE_RESULT_FILE
 $R/$1: $$(MEASUREMENTS_$1)
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.time) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),printf "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.time) >>$$@.tmp &&) true
 	mv $$@.tmp $$@
 # Relative Standard Deviation
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.rsd) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),printf "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.rsd) >>$$@.tmp &&) true
 	mv $$@.tmp $$@.rsd
 # Comparisons
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.comps) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),printf "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.comps) >>$$@.tmp &&) true
 	mv $$@.tmp $$@.comps
 # Worst-case Comparisons
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.max_comps) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),printf "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.max_comps) >>$$@.tmp &&) true
 	mv $$@.tmp $$@.max_comps
 # Swaps
 	echo "Size" $$(foreach a,$$(ALGOS), "  $$a") >$$@.tmp
-	$$(foreach n,$$(SIZES),echo -n "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.swaps) >>$$@.tmp &&) true
+	$$(foreach n,$$(SIZES),printf "$$n\t" >>$$@.tmp && paste $$(foreach a,$$(ALGOS),$$T/$1_$$n_$$a.swaps) >>$$@.tmp &&) true
 	mv $$@.tmp $$@.swaps
 endef
 
