@@ -82,7 +82,7 @@ int main(int argc, char** argv)
     double durations[epochs];
     double median = 0;
 #ifdef COUNT_COMPARISONS
-    double maxComparisons = 0;
+    unsigned long maxComparisons = 0;
 #endif
 
     for (size_t i = 0; i < epochs; ++i)
@@ -93,9 +93,9 @@ int main(int argc, char** argv)
         vector<double> v {data, data + dataLen};
         auto b = &v[0];
 
-        #ifdef COUNT_COMPARISONS
-            const double tally = g_comparisons;
-        #endif
+#ifdef COUNT_COMPARISONS
+        const auto tally = g_comparisons;
+#endif
 
         //////////////////// TIMING {
         Timer t;
