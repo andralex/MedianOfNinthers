@@ -6,11 +6,11 @@
 
 #pragma once
 
-#ifdef _GLIBCXX_ALGORITHM
+#if defined(_GLIBCXX_ALGORITHM) || defined(_LIBCPP_ALGORITHM)
 #error Please include this file before <algorithm>
 #endif
 
-#ifdef _GLIBCXX_UTILITY
+#if defined(_GLIBCXX_UTILITY) || defined(_LIBCPP_UTILITY)
 #error Please include this file before <utility>
 #endif
 
