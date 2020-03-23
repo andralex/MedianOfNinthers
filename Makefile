@@ -47,17 +47,21 @@ DATASETS = $(SYNTHETIC_DATASETS) gbooks_freq
 RESULTS = $(addprefix $R/,$(DATASETS))
 
 ###############################################################################
+# Targets of interest
+###############################################################################
 
 all: $(RESULTS)
 
 clean:
+	latexmk -C
 	rm -rf $D/*.tmp $R*/* $T*/
 
 pristine:
 	rm -rf $D/ $R/* $T/
 
-# Don't delete intermediary files
-.SECONDARY:
+# Rendering of results
+figures.pdf: figures.tex $(RESULTS)
+	latexmk -pdf $<
 
 ################################################################################
 # Data
@@ -165,3 +169,6 @@ $(foreach a,$(SYNTHETIC_DATASETS),$(eval $(call MAKE_RESULT_FILE,$a)))
 
 # Supplemental dependencies
 median_of_ninthers.cpp: median_of_ninthers.h
+
+# Don't delete intermediary files
+.SECONDARY:

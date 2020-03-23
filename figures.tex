@@ -1,0 +1,215 @@
+\documentclass{article}
+\setlength{\textwidth}{1.2\textwidth}
+\setlength{\textheight}{1.16\textheight}
+\setlength{\voffset}{-1in}
+
+\usepackage{booktabs}
+% pgf plots {
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.12}
+\usepgfplotslibrary{statistics}
+\pgfplotsset{width=\columnwidth}
+\usepgfplotslibrary{external}
+\usetikzlibrary{chains, positioning, arrows.meta, bending, shapes.arrows}
+% }
+
+% Data for plots and tables
+\pgfplotstableread{results/random}\random
+\pgfplotstableread{results/random01}\zeroone
+\pgfplotstableread{results/m3killer}\mIIIkiller
+\pgfplotstableread{results/organpipe}\organpipe
+\pgfplotstableread{results/sorted}\sorted
+\pgfplotstableread{results/rotated}\rotated
+\pgfplotstableread{results/gbooks_freq}\gbooksfreq
+
+\pgfplotstableread{results/random.comps}\randomComps
+\pgfplotstableread{results/random.swaps}\randomSwaps
+\pgfplotstableread{results/gbooks_freq.comps}\gbooksfreqComps
+\pgfplotstableread{results/gbooks_freq.swaps}\gbooksfreqSwaps
+
+\pgfplotstableread{results/random.rsd}\randomRSD
+
+% Data for tables only
+\pgfplotstableread{results/random}\random
+
+\newcommand{\plot}[6][]{%
+  \begin{tikzpicture}[#6]%
+    \begin{semilogxaxis}[bar cycle list, bar width=0.011\textwidth, enlargelimits=0.1, grid style=dashed, height=0.2\textheight, legend columns=2, legend to name=leg:fig:#2, legend style={font=\tiny}, title={\ref{leg:fig:#2}}, xlabel={Input size}, xminorticks=false, ybar, ymajorgrids=true, ymin=0, #1]
+      \addplot table[y expr=\y{nth_element}] from #4; \addlegendentry{\small{\textsc{GNUIntroselect}}}
+      \addplot table[y expr=\y{rnd3pivot}] from #4; \addlegendentry{\small{\textsc{RND3Pivot}}}
+      \addplot table[y expr=\y{ninther}] from #4; \addlegendentry{\small{\textsc{Ninther}}}
+      \addplot table[y expr=\y{median_of_ninthers}] from #4; \addlegendentry{\small{\textsc{QuickselectAdaptive}}}
+    \end{semilogxaxis}%
+  \end{tikzpicture}%
+  \caption{#3}\label{fig:#2}%
+}
+
+\newcommand{\maketable}[3][Size]{%
+  \begin{table}[htb]
+    \begin{minipage}[c]{\textwidth}
+      \small
+      \pgfplotstableset{
+        fixed,
+        zerofill,
+        precision=2,
+        every head row/.style={
+          before row={\toprule #1 & \multicolumn{2}{c}{\textsc{GNUIntroselect}} & \multicolumn{4}{c}{\textsc{Rnd3Pivot}} & \multicolumn{4}{c}{\textsc{Ninther}} & \multicolumn{4}{c}{\textsc{QuickselectAdaptive}}\\
+            & \multicolumn{2}{l}{ms} & \multicolumn{2}{l}{ms} & \multicolumn{2}{l}{speedup} & \multicolumn{2}{l}{ms} & \multicolumn{2}{l}{speedup} & \multicolumn{2}{l}{ms} & \multicolumn{2}{l}{speedup} \\ },
+          after row=\midrule,
+          output empty row,
+        },
+      }
+      \pgfplotstabletypeset[columns={#1,GNUIntroselect,Rnd3Pivot,Rnd3PivotSpeedup,Ninther,NintherSpeedup,QuickselectAdaptive,QuickselectAdaptiveSpeedup},
+      ]{#2}
+      \caption{Run times in milliseconds and speedup over the \textsc{GNUIntroselect} baseline (\emph{#3} dataset)}
+    \end{minipage}
+    \end{table}
+}
+
+\newcommand{\gbooksplot}[5][]{%
+  \begin{minipage}{#4}%
+    \centering
+    \begin{tikzpicture}[]%
+      \begin{axis}[bar cycle list, bar width=0.011\textwidth, enlargelimits=0.1, grid style=dashed, legend columns=2, legend to name=leg:fig:#2, legend style={font=\tiny}, symbolic x coords={eng,rus,fre,ger,ita,spa}, title={\ref{leg:fig:#2}}, xlabel={Corpus Language}, xtick=data, ybar, ymajorgrids=true, ymin=0, #1]
+        \addplot table[y expr=\y{nth_element}] from #3; \addlegendentry{\small{\textsc{GNUIntroselect}}}
+        \addplot table[y expr=\y{rnd3pivot}] from #3; \addlegendentry{\small{\textsc{Median of 3 randomized}}}
+        \addplot table[y expr=\y{ninther}] from #3; \addlegendentry{\small{\textsc{Ninther}}}
+        \addplot table[y expr=\y{median_of_ninthers}] from #3; \addlegendentry{\small{\textsc{QuickselectAdaptive}}}
+      \end{axis}%
+    \end{tikzpicture}%
+    \caption{#5}\label{fig:#2}%
+  \end{minipage}
+}
+
+\pgfplotstableset{
+  debug=false,
+  /pgfplots/table/ignore chars={_},
+  every last row/.style={after row=\bottomrule},
+  alias/GNUIntroselect/.initial=nth_element,
+  alias/QuickselectAdaptive/.initial=median_of_ninthers,
+  alias/Rnd3Pivot/.initial=rnd3pivot,
+  alias/Ninther/.initial=ninther,
+  columns/Size/.style={int detect, column type=r},
+  columns/GNUIntroselect/.style={dec sep align},
+  columns/Rnd3Pivot/.style={dec sep align},
+  columns/Ninther/.style={dec sep align},
+  columns/Corpus/.style={string type},
+  columns/QuickselectAdaptive/.style={dec sep align},
+  create on use/QuickselectAdaptiveSpeedup/.style={
+    create col/expr={\thisrow{nth_element}/\thisrow{median_of_ninthers}}
+  },
+  columns/QuickselectAdaptiveSpeedup/.style={dec sep align},
+  create on use/Rnd3PivotSpeedup/.style={
+    create col/expr={\thisrow{nth_element}/\thisrow{rnd3pivot}},
+  },
+  columns/Rnd3PivotSpeedup/.style={fixed, dec sep align},
+  create on use/NintherSpeedup/.style={
+    create col/expr={\thisrow{nth_element}/\thisrow{ninther}},
+  },
+  columns/NintherSpeedup/.style={dec sep align},
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\centering
+
+\maketable{\random}{random}
+
+\newcommand{\y}[1]{%
+    \thisrow{nth_element} / \thisrow{#1}%
+}
+
+\begin{figure}[htb]
+  \centering
+  \plot[ylabel=Speedup]{uniform}{\small Speed relative to \textsc{GNUIntroselect} (\emph{random} dataset)}{\random}{\textwidth}{}
+  \hfill
+\end{figure}
+
+\renewcommand{\y}[1]{\thisrow{#1}}
+
+\begin{figure}
+  \centering
+  \plot[ylabel=Comparisons/Element]{randomComps}{\small Average comparisons per element (\emph{random} dataset)}{\randomComps}{\textwidth}{}
+  \plot[ylabel=Swaps/Element]{randomSwaps}{\small Average swaps per element (\emph{random} dataset)}{\randomSwaps}{\textwidth}{}
+  \hfill
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketable{\zeroone}{random01}
+
+\renewcommand{\y}[1]{%
+    \thisrow{nth_element} / \thisrow{#1}%
+}
+
+\begin{figure}[htb]
+  \centering
+  \plot[ylabel=Relative Speed]{random01}{\small Speed relative to \textsc{GNUIntroselect} (\emph{random01} dataset)}{\zeroone}{\textwidth}{}
+  \hfill
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketable{\mIIIkiller}{m3killer}
+
+\begin{figure}
+  \centering
+  \plot[ylabel=Relative Speed]{mIIIkiller}{\small Speed relative to \textsc{GNUIntroselect} (\emph{m3killer} dataset)}{\mIIIkiller}{\textwidth}{}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketable{\organpipe}{organpipe}
+
+\begin{figure}
+  \centering
+  \plot[ylabel=Relative Speed]{organpipe}{\small Speed relative to \textsc{GNUIntroselect} (\emph{organpipe} dataset)}{\organpipe}{\textwidth}{}
+  \hfill
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketable{\sorted}{sorted}
+
+\begin{figure}
+  \centering
+  \plot[ylabel=Relative Speed]{sorted}{\small Speed relative to \textsc{GNUIntroselect} (\emph{sorted} dataset)}{\sorted}{\textwidth}{}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketable{\rotated}{rotated}
+
+\begin{figure}
+  \plot[ylabel=Relative Speed]{rotated}{\small Speed relative to \textsc{GNUIntroselect} (\emph{rotated} dataset)}{\rotated}{\textwidth}{}
+  \hfill
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\maketable[Corpus]{\gbooksfreq}{googlebooks}
+
+\begin{figure}
+  \centering
+  \gbooksplot[height=0.25\textheight]{gbooksfreq}{\gbooksfreq}{\textwidth}{\small Speed relative to \textsc{GNUIntroselect} (\emph{googlebooks} dataset)}
+  \hfill
+\end{figure}
+
+\begin{figure}
+  \centering
+  \gbooksplot[height=0.2\textheight]{gbooksfreqComps}{\gbooksfreqComps}{\textwidth}{\small Comparisons per element (\emph{googlebooks} dataset)}
+  \gbooksplot[height=0.2\textheight]{gbooksfreqSwaps}{\gbooksfreqSwaps}{\textwidth}{\small Swaps per element (\emph{googlebooks} dataset)}
+  \hfill
+\end{figure}
+
+\begin{figure}
+  \centering
+  \plot[ylabel={\ensuremath{\frac{\sigma}{\mu}}}, ymajorgrids=true, ymin=0, height=0.3\textheight]{randomRSD}{\small Coefficient of variation (\emph{random} dataset)}{\randomRSD}{\textwidth}{}
+  \hfill
+\end{figure}
+
+
+\end{document}
