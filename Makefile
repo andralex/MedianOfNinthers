@@ -45,23 +45,20 @@ MEASUREMENT_OUTPUTS = $(foreach x,$(SYNTHETIC_DATASETS),$(MEASUREMENTS_$x)) \
 # experiments are run.
 DATASETS = $(SYNTHETIC_DATASETS) gbooks_freq
 RESULTS = $(addprefix $R/,$(DATASETS))
+PLOTS = $(addsuffix .svg,$(addprefix plots/,$(DATASETS)))
 
 ###############################################################################
 # Targets of interest
 ###############################################################################
 
-all: $(RESULTS)
+all: $(RESULTS) plots/.done
 
 clean:
 	latexmk -C
-	rm -rf $D/*.tmp $R*/* $T*/
+	rm -rf $D/*.tmp $R*/* $T*/ $(PLOTS) plots/.done
 
 pristine:
-	rm -rf $D/ $R/* $T/
-
-# Rendering of results
-figures.pdf: figures.tex $(RESULTS)
-	latexmk -pdf $<
+	rm -rf $D/ $R/* $T/ $(PLOTS) plots/.done
 
 ################################################################################
 # Data
@@ -166,6 +163,14 @@ $R/$1: $$(MEASUREMENTS_$1)
 endef
 
 $(foreach a,$(SYNTHETIC_DATASETS),$(eval $(call MAKE_RESULT_FILE,$a)))
+
+################################################################################
+# Plots
+################################################################################
+
+plots/.done : $(RESULTS)
+	gnuplot plots.gnuplot
+	touch $@
 
 # Supplemental dependencies
 median_of_ninthers.cpp: median_of_ninthers.h
